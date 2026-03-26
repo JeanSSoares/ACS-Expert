@@ -1,20 +1,16 @@
 {
-  "name": "acs-expert-main",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "name": "acs-expert",
+  "version": "0.1.0",
+  "description": "ACS-Expert — Sistema de apoio aos Agentes Comunitários de Saúde",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "backend": "node backend/server.js",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "build": "npm run build --prefix frontend"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.20.0"
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
