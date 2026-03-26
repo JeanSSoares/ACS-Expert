@@ -1,0 +1,356 @@
+:root{
+  --primary:#0066CC;
+  --success:#10B981;
+  --warning:#F59E0B;
+  --danger:#EF4444;
+  --bg:#f6f9ff;
+  --card:#ffffff;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+/* Adicione isso no TOPO do CSS para garantir o enquadramento */
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* Corta qualquer coisa que tente sair da largura da tela */
+  position: relative;
+  touch-action: manipulation; /* Melhora a resposta do toque */
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,var(--bg),#ffffff);color:#0b1220}
+.app{max-width:1200px;margin:20px auto;padding:20px}
+header{display:flex;align-items:center;gap:16px;margin-bottom:10px}
+header h1{margin:0;font-size:20px;color:var(--primary)}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tab{padding:10px 14px;border-radius:8px;background:var(--card);cursor:pointer;border:1px solid #e6eefc;color:var(--primary)}
+.tab.active{box-shadow:0 4px 14px rgba(0,102,204,0.12);background:linear-gradient(180deg,#eaf4ff,#ffffff)}
+.main{display:grid;grid-template-columns:1fr 380px;gap:18px}
+.panel{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(16,25,40,0.04)}
+
+.chat{display:flex;flex-direction:column;gap:12px;height:auto} 
+.conversation{height:250px;
+flex-shrink:0; overflow:auto;padding:12px;border-radius:8px;background:linear-gradient(180deg,#f8fbff,#ffffff);border:1px solid #eef6ff}
+
+.msg{margin:8px 0;display:flex;gap:10px;align-items:flex-end}
+.bot{justify-content:flex-start}
+.bot .bubble{background:linear-gradient(90deg,var(--primary),#2990ff);color:white}
+.user{justify-content:flex-end}
+.bubble{max-width:78%;padding:10px 12px;border-radius:12px;display:inline-block}
+.controls{display:flex;gap:8px;align-items:center}
+input[type="number"], select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #dbeafe}
+
+.symptom-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 8px; 
+}
+/* --- NOVO (EVOLUÇÃO 4) --- */
+.symptom-wrapper { position: relative;
+} /* Para posicionar o popup */
+.symptom {
+  display: flex;
+  /* Para alinhar o [+] */
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 10px;
+  border-radius: 10px;
+  border: 1px solid #eef2ff;
+  cursor: pointer;
+  background: white;
+  font-weight: 500;
+}
+.symptom.active{border-color:var(--primary);box-shadow:0 6px 18px rgba(0,102,204,0.06); border-bottom-left-radius: 0;
+border-bottom-right-radius: 0;}
+.symptom-slider {
+  background: #fbfdff;
+  border: 1px solid var(--primary);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  margin-top: -8px; 
+  padding: 8px 10px 10px 10px;
+}
+.qualifier-toggle {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 0 5px;
+  margin-left: 8px;
+  border-radius: 4px;
+  background: #eaf4ff;
+}
+.qualifier-popup {
+  display: none;
+  position: absolute;
+  /* --- ALTERAÇÕES --- */
+  z-index: 99;
+  /* Valor bem mais alto para garantir a sobreposição */
+  top: 100%;
+  /* Posiciona o topo do popup no fundo do elemento pai (.symptom-wrapper) */
+  left: 0;
+  /* Alinha à esquerda do elemento pai */
+  margin-top: 2px;
+  /* Pequeno espaço entre o sintoma e o popup */
+  /* --- FIM ALTERAÇÕES --- */
+  background: white;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 10px;
+  min-width: 220px;
+  /* max-width: 95%;
+  */ /* Evita que seja maior que o pai em telas pequenas */
+}
+.qualifier-popup label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+ .qualifier-popup input[type="checkbox"] {
+  margin-right: 6px;
+  width: auto;
+  cursor: pointer;
+}
+/* --- FIM NOVO (EVOLUÇÃO 4) --- */
+
+
+.risk-factor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+.risk-factor-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fbfdff;
+  border: 1px solid #eef2ff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.risk-factor-item input[type="checkbox"] {
+  width: auto;
+  height: 16px;
+  margin: 0;
+}
+.risk-factor-item label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.actions{display:flex;gap:8px}
+button{cursor:pointer;border:0;padding:10px 12px;border-radius:8px;font-weight:600}
+.btn-primary{background:var(--primary);color:white}
+.btn-ghost{background:#f3f7ff;border:1px solid #e6f0ff;color:var(--primary)}
+.right-col{display:flex;flex-direction:column;gap:12px}
+
+.progress{display:none;} 
+
+.result-list{display:flex;flex-direction:column;gap:10px}
+.dcard{padding:12px;border-radius:10px;border-left:6px solid #ddd;background:#fcfeff;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.dcard.danger{border-left-color:var(--danger);background:linear-gradient(90deg,#fff6f6,#fff)}
+.dcard.warning{border-left-color:var(--warning);background:linear-gradient(90deg,#fffaf6,#fff)}
+.dcard.info{border-left-color:var(--primary)}
+.badge{padding:6px 8px;border-radius:999px;color:white;font-weight:700;font-size:12px}
+.badge.danger{background:var(--danger)}
+.badge.warning{background:var(--warning);color:#2b2b2b}
+.badge.info{background:var(--primary)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+pre{background:#071428;color:#cfefff;padding:10px;border-radius:8px;overflow:auto}
+.small{font-size:13px;color:#334155}
+footer{margin-top:14px;font-size:13px;color:#475569}
+.rules-list{max-height:420px;overflow:auto}
+.rule-row{padding:8px;border-bottom:1px dashed #eef2ff;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.log-true{color:var(--success);font-weight:700}
+.log-false{color:#64748b}
+.muted{color:#64748b;font-size:13px}
+/* slider style */
+.slider-wrap{display:flex;align-items:center;gap:12px}
+.slider{flex:1}
+input[type=range]{-webkit-appearance:none;width:100%;height:10px;border-radius:10px;background:linear-gradient(90deg,#10B981,#F59E0B,#EF4444);
+outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:4px solid rgba(0,0,0,0.12);box-shadow:0 2px 6px rgba(0,0,0,0.12)}
+.percent-bar{height:10px;background:#eef3ff;border-radius:8px;overflow:hidden}
+.percent-fill{height:100%;background:linear-gradient(90deg,#10B981,#F59E0B,#EF4444);width:0%;}
+.disease-list{max-height:320px;overflow:auto}
+
+/* --- NOVOS ESTILOS (EVOLUÇÃO 4 - UI - Acordeão) --- */
+.symptom-group-header {
+  background: #eaf4ff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.symptom-group-header::after {
+  content: '▼'; /* Seta para baixo */
+  font-size: 12px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.symptom-group-header.collapsed::after {
+  transform: rotate(-90deg); /* Seta para o lado */
+}
+
+.symptom-group-panel {
+  padding: 10px 5px 5px 5px;
+  border: 1px solid #eef2ff;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  margin-top: -8px;
+  /* Cola no header */
+  display: grid; /* Mantém as 2 colunas internas */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  /* Animação e Overflow */
+  max-height: 1000px;
+  /* Altura grande para comportar os itens */
+  /* --- ALTERAÇÃO: Mover overflow para a transição --- */
+  /* overflow: hidden;
+  */ /* REMOVIDO DAQUI */
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out, border 0.3s ease-in-out;
+  overflow: visible;
+  /* Permitir que o conteúdo (popup) transborde por padrão */
+}
+
+.symptom-group-panel.collapsed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  /* Anima o sumiço da borda também */
+  overflow: hidden;
+  /* --- ADICIONADO AQUI: Esconde o overflow SÓ quando colapsado --- */
+}
+/* --- FIM NOVOS ESTILOS --- */
+
+/* Ajuste no symptom-grid para remover colunas e gap */
+.symptom-grid {
+  display: block;
+  /* Mudar de grid para block */
+  /* Remover grid-template-columns e gap */
+}
+/* =========================================
+   ESTILOS MOBILE (Responsividade - V2 Ajustada)
+   ========================================= */
+@media (max-width: 768px) {
+  
+  /* 1. Layout Principal */
+  .main {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  /* Prevenir "pulos" de altura mantendo uma altura mínima no painel */
+  .panel {
+    min-height: 400px; 
+  }
+
+  /* 2. Cabeçalho */
+  header {
+    flex-direction: column;
+    align-items: center; /* Centraliza o logo e texto */
+    text-align: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  header .small {
+    display: none; 
+  }
+
+  /* 3. ABAS (Centralizadas e Esticadas) */
+  .tabs {
+    width: 100%;
+    justify-content: center; /* Centraliza o grupo */
+    gap: 5px; /* Espaço menor entre elas */
+  }
+  
+  .tab {
+    flex: 1; /* Faz cada aba crescer para ocupar o espaço disponível */
+    text-align: center; /* Texto centralizado dentro da aba */
+    padding: 12px 4px; /* Mais altura, menos largura interna */
+    font-size: 13px; /* Texto um pouco menor para caber "Motor de Inferência" */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 4. CORREÇÃO: Faixa Etária vs Sexo */
+  /* Forçamos o container dos selects a usar Flexbox corretamente */
+  #triage .tab-content > div > div[style*="display:flex"] {
+    display: flex !important;
+    gap: 8px !important;
+    width: 100%;
+  }
+
+  /* Faixa Etária (Reduzida) */
+  #triage .tab-content > div > div[style*="display:flex"] > div:first-child {
+    flex: 1 !important; /* Ocupa o espaço restante */
+    min-width: 0 !important; /* Permite encolher se precisar */
+  }
+
+  /* Sexo (Garantido espaço) */
+  #triage .tab-content > div > div[style*="display:flex"] > div:nth-child(2) {
+    width: auto !important; /* Remove a largura fixa de 140px do HTML */
+    flex: 0 0 110px !important; /* Fixa uma largura segura para o Sexo */
+  }
+
+  /* Botões Avaliar/Reiniciar */
+  #triage .tab-content > div > div[style*="display:flex"]:last-child {
+     margin-top: 10px;
+  }
+  .btn-primary, .btn-ghost {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    margin-top: 5px;
+  }
+
+  /* 5. Inputs e Selects (Fonte 16px evita Zoom no iPhone) */
+  select, input[type="text"], input[type="number"] {
+    font-size: 16px !important; 
+  }
+
+  /* 6. Lista de Sintomas */
+  .symptom-group-header {
+    padding: 14px;
+    font-size: 15px;
+  }
+  .symptom {
+    padding: 14px 10px;
+    font-size: 15px;
+  }
+  input[type="checkbox"] {
+    transform: scale(1.3);
+    margin-right: 8px;
+  }
+
+  /* 7. Popups e Resultados */
+  .qualifier-popup {
+    position: relative;
+    top: 0;
+    width: 100%;
+    min-width: unset;
+    box-shadow: none;
+    border: 1px solid #eee;
+    margin-top: 5px;
+    z-index: 10;
+  }
+  .right-col {
+    margin-top: 20px;
+  }
+}
