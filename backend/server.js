@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
@@ -8,20 +10,20 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// conexão com MySQL (XAMPP)
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'acsexpert'
+  host:     process.env.DB_HOST,
+  port:     process.env.DB_PORT || 3306,
+  user:     process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 db.connect(err => {
   if (err) {
-    console.error('Erro ao conectar:', err);
-  } else {
-    console.log('Conectado ao MySQL');
+    console.error('Erro ao conectar ao MySQL:', err.message);
+    process.exit(1);
   }
+  console.log(`Conectado ao MySQL em ${process.env.DB_HOST}:${process.env.DB_PORT}`);
 });
 
 // REGISTRO
@@ -57,11 +59,12 @@ app.post('/login', (req, res) => {
 
       if (!valid) return res.status(401).send('Senha inválida');
 
-      const token = jwt.sign({ id: user.id }, 'segredo');
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '8h' });
 
       res.json({ token });
     }
   );
 });
 
-app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
