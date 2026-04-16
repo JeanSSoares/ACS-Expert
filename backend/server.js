@@ -11,7 +11,9 @@ app.use(express.json());
 app.use(cors());
 
 // ── Rotas ──────────────────────────────────────────────────────
-app.use('/api/usuarios', require('./routes/usuarios'));
+app.use('/api/usuarios',   require('./routes/usuarios'));
+app.use('/api/microareas', require('./routes/microareas'));
+app.use('/api/pacientes',  require('./routes/pacientes'));
 
 // ── Auth ───────────────────────────────────────────────────────
 app.post('/api/auth/login', async (req, res) => {
@@ -53,6 +55,7 @@ app.post('/api/auth/login', async (req, res) => {
     const { senha_hash, ...usuarioPublico } = usuario;
     res.json({ token, usuario: usuarioPublico });
   } catch (err) {
+    console.error('[AUTH/LOGIN] Erro:', err);
     res.status(500).json({ message: 'Erro interno.', error: err.message });
   }
 });
