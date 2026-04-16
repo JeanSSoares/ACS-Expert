@@ -1,0 +1,524 @@
+[
+  {
+    "id": "sdpc",
+    "nome": "Síndrome da Dor Pélvica Crônica",
+    "sintomas": ["dor_pelvica_cronica", "dor_perineal", "disuria", "polaciuria", "dispareunia", "ansiedade_sintoma"],
+    "painWeight": 0.7,
+    "genderPref": "f",
+    "descricao": "Dor persistente na região pélvica sem infecção ativa comprovada (ex: prostatite crônica ou dor pélvica inespecífica)."
+  },
+  {
+    "id": "tag",
+    "nome": "Ansiedade Generalizada (TAG)",
+    "sintomas": ["preocupacao_excessiva", "ansiedade_sintoma", "irritabilidade", "insônia_sintoma", "astenia", "dor_corpo"],
+    "painWeight": 0.1,
+    "genderPref": "f",
+    "descricao": "Preocupação crônica, excessiva e difícil de controlar sobre diversos temas."
+  },
+  {
+    "id": "panico",
+    "nome": "Síndrome do Pânico",
+    "sintomas": ["medo_intenso_subito", "palpitacao", "taquicardia", "dispneia", "tontura", "sudorese", "calafrios"],
+    "painWeight": 0.7,
+    "descricao": "Ataques súbitos de medo intenso e sintomas físicos avassaladores sem perigo real."
+  },
+  {
+    "id": "fobia_especifica",
+    "nome": "Fobia Específica",
+    "sintomas": ["medo_especifico", "ansiedade_sintoma", "palpitacao", "sudorese"],
+    "painWeight": 0.1,
+    "descricao": "Medo intenso e irracional de um objeto ou situação específica (ex: aranha, altura, avião)."
+  },
+  {
+    "id": "urticaria",
+    "nome": "Urticária Aguda",
+    "sintomas": ["manchas_pele", "prurido", "vergoes_pele", "angioedema"],
+    "painWeight": 0.3,
+    "descricao": "Reação alérgica da pele que causa vergões vermelhos e coceira intensa. Angioedema é sinal de gravidade."
+  },
+  {
+    "id": "acne_grave",
+    "nome": "Acne Cística / Grave",
+    "sintomas": ["manchas_pele", "lesoes_nodulares_pele", "dor_face"],
+    "painWeight": 0.5,
+    "descricao": "Forma grave de acne com nódulos e cistos dolorosos e inflamados, geralmente no rosto e costas."
+  },
+  {
+    "id": "transtorno_bipolar",
+    "nome": "Transtorno Bipolar",
+    "sintomas": ["tristeza", "euforia_mania", "irritabilidade", "fala_acelerada", "reducao_sono", "ansiedade_sintoma", "insônia_sintoma"],
+    "painWeight": 0.1,
+    "descricao": "Transtorno de humor caracterizado por alternância entre episódios de depressão e mania/hipomania."
+  },
+  {
+    "id": "alzheimer",
+    "nome": "Doença de Alzheimer",
+    "sintomas": ["perda_memoria_recente", "desorientacao", "dificuldade_linguagem", "confusao", "irritabilidade", "ansiedade_sintoma"],
+    "painWeight": 0.1,
+    "descricao": "Doença neurodegenerativa progressiva que causa declínio da memória e da função cognitiva."
+  },
+  {
+    "id": "labirintite",
+    "nome": "Labirintite / VPPB (Vertigem)",
+    "sintomas": ["tontura", "vertigem_rotatoria", "nausea", "vomito", "zumbido", "sudorese"],
+    "painWeight": 0.4,
+    "descricao": "Distúrbio do ouvido interno que causa vertigem rotatória intensa, náusea e perda de equilíbrio."
+  },
+  {
+    "id": "psoriase",
+    "nome": "Psoríase",
+    "sintomas": ["manchas_pele", "placas_descamativas", "prurido", "dor_articular"],
+    "painWeight": 0.3,
+    "descricao": "Doença autoimune crônica da pele que causa placas vermelhas e descamativas (prateadas)."
+  },
+  {
+    "id": "mioma_uterino",
+    "nome": "Mioma Uterino",
+    "sintomas": ["sangramento_uterino_anormal", "colica_menstrual_intensa", "dor_pelvica_cronica", "aumento_volume_abdominal", "polaciuria"],
+    "painWeight": 0.6,
+    "genderPref": "f",
+    "descricao": "Tumor benigno no útero, causando sangramento intenso e dor pélvica."
+  },
+  {
+    "id": "enxaqueca",
+    "nome": "Enxaqueca (Migrânea)",
+    "sintomas": ["cefaleia", "nausea", "vomito", "sensibilidade_luz", "aura_visual"],
+    "painWeight": 0.8,
+    "genderPref": "f",
+    "descricao": "Cefaleia crônica, pulsátil, frequentemente unilateral e incapacitante, com sensibilidade sensorial."
+  },
+  {
+    "id": "parkinson",
+    "nome": "Doença de Parkinson",
+    "sintomas": ["tremor_repouso", "rigidez_muscular", "bradicinesia", "instabilidade_postural"],
+    "painWeight": 0.1,
+    "genderPref": "m",
+    "descricao": "Doença neurológica degenerativa que afeta o movimento, causando tremor em repouso e lentidão."
+  },
+  {
+    "id": "balanite_candidiaca",
+    "nome": "Balanite Candidiásica",
+    "sintomas": ["prurido_genital", "vermelhidao_glande", "corrimento_genital", "disuria"],
+    "painWeight": 0.4,
+    "genderPref": "m",
+    "descricao": "Infecção fúngica peniana (glande/prepúcio), causando coceira, vermelhidão e placas brancas."
+  },
+  {
+    "id": "artrose",
+    "nome": "Artrose (Osteoartrite)",
+    "sintomas": ["dor_articular", "edema", "crepitacao_articular", "rigidez_matinal"],
+    "painWeight": 0.6,
+    "descricao": "Doença degenerativa da cartilagem, dor piora com esforço e no fim do dia."
+  },
+  {
+    "id": "fibromialgia",
+    "nome": "Fibromialgia",
+    "sintomas": ["dor_corpo", "astenia", "insônia_sintoma", "confusao", "cefaleia", "ansiedade_sintoma"],
+    "painWeight": 0.8,
+    "genderPref": "f",
+    "descricao": "Síndrome de dor crônica generalizada, associada a fadiga, sono não reparador e \"névoa mental\"."
+  },
+  {
+    "id": "lupus",
+    "nome": "Lúpus (LES)",
+    "sintomas": ["astenia", "febre", "dor_articular", "manchas_pele", "sensibilidade_luz", "perda_peso", "feridas_boca", "queda_cabelo"],
+    "painWeight": 0.5,
+    "genderPref": "f",
+    "descricao": "Doença autoimune sistêmica que afeta pele, articulações, rins e outros órgãos. Predominante em mulheres."
+  },
+  {
+    "id": "covid19",
+    "nome": "COVID-19",
+    "sintomas": ["febre", "tosse", "dispneia", "dor_corpo", "cefaleia", "coriza"],
+    "painWeight": 0.5,
+    "descricao": "Doença viral respiratória. Sintomas respiratórios, febre, fadiga."
+  },
+  {
+    "id": "dengue",
+    "nome": "Dengue",
+    "sintomas": ["febre", "dor_corpo", "cefaleia", "manchas_pele", "calafrios", "sangramento_gengiva"],
+    "painWeight": 0.3,
+    "descricao": "Infecção viral transmitida por Aedes, febre alta, mialgia e rash."
+  },
+  {
+    "id": "gripe",
+    "nome": "Gripe (Influenza)",
+    "sintomas": ["febre", "calafrios", "tosse", "dor_corpo", "cefaleia", "coriza"],
+    "painWeight": 0.3,
+    "descricao": "Infecção respiratória sazonal."
+  },
+  {
+    "id": "resfriado",
+    "nome": "Resfriado comum",
+    "sintomas": ["coriza", "tosse", "rouquidão", "dor_corpo"],
+    "painWeight": 0.1,
+    "descricao": "Virose respiratória leve."
+  },
+  {
+    "id": "pneumonia",
+    "nome": "Pneumonia",
+    "sintomas": ["febre", "calafrios", "tosse", "dispneia", "sangue_no_sarro", "dor_peito"],
+    "painWeight": 0.6,
+    "descricao": "Infecção pulmonar com dispneia e febre."
+  },
+  {
+    "id": "asma",
+    "nome": "Asma",
+    "sintomas": ["tosse", "dispneia", "chiado"],
+    "painWeight": 0.2,
+    "descricao": "Doença obstrutiva das vias aéreas caracterizada por crises de falta de ar."
+  },
+  {
+    "id": "bronquite",
+    "nome": "Bronquite",
+    "sintomas": ["tosse", "febre", "dispneia"],
+    "painWeight": 0.2,
+    "descricao": "Inflamação dos brônquios, costuma causar tosse produtiva."
+  },
+  {
+    "id": "sinusite",
+    "nome": "Sinusite",
+    "sintomas": ["cefaleia", "coriza", "dor_face", "sensibilidade_luz"],
+    "painWeight": 0.4,
+    "descricao": "Inflamação dos seios paranasais causando dor facial."
+  },
+  {
+    "id": "otite",
+    "nome": "Otite",
+    "sintomas": ["dor_ouvido", "febre", "tosse"],
+    "painWeight": 0.7,
+    "descricao": "Infecção do ouvido médio com dor intensa."
+  },
+  {
+    "id": "faringite",
+    "nome": "Faringite",
+    "sintomas": ["odinofagia", "febre", "rouquidão"],
+    "painWeight": 0.5,
+    "descricao": "Inflamação da faringe, dor ao engolir."
+  },
+  {
+    "id": "amigdalite",
+    "nome": "Amigdalite",
+    "sintomas": ["odinofagia", "febre", "adenomegalia", "rouquidão"],
+    "painWeight": 0.6,
+    "descricao": "Inflamação das amígdalas."
+  },
+  {
+    "id": "infeccao_urinaria",
+    "nome": "Infecção urinária",
+    "sintomas": ["disuria", "poliuria", "dor_abdominal", "febre"],
+    "painWeight": 0.5,
+    "genderPref": "f",
+    "descricao": "Infecção do trato urinário com dor ou ardência ao urinar."
+  },
+  {
+    "id": "pielonefrite",
+    "nome": "Pielonefrite",
+    "sintomas": ["febre", "calafrios", "dor_abdominal", "anuria", "nausea"],
+    "painWeight": 0.7,
+    "genderPref": "f",
+    "descricao": "Infecção renal com dor lombar e febre alta."
+  },
+  {
+    "id": "gastroenterite",
+    "nome": "Gastroenterite",
+    "sintomas": ["diarreia", "vomito", "dor_abdominal", "febre"],
+    "painWeight": 0.4,
+    "descricao": "Inflamação do trato gastrointestinal."
+  },
+  {
+    "id": "gastrite",
+    "nome": "Gastrite",
+    "sintomas": ["dor_abdominal", "nausea", "vomito", "perda_apetite"],
+    "painWeight": 0.8,
+    "descricao": "Inflamação do estômago com dor epigástrica."
+  },
+  {
+    "id": "colecistite",
+    "nome": "Colecistite",
+    "sintomas": ["dor_abdominal", "febre", "vomito", "ictericia"],
+    "painWeight": 0.9,
+    "descricao": "Inflamação da vesícula biliar com dor intensa no quadrante superior direito."
+  },
+  {
+    "id": "pancreatite",
+    "nome": "Pancreatite",
+    "sintomas": ["dor_abdominal", "vomito", "sudorese", "ictericia"],
+    "painWeight": 1.0,
+    "descricao": "Inflamação do pâncreas com dor abdominal intensa."
+  },
+  {
+    "id": "ulcera",
+    "nome": "Úlcera péptica",
+    "sintomas": ["dor_abdominal", "perda_peso", "nausea", "vomito", "sangue_nas_fezes"],
+    "painWeight": 0.7,
+    "descricao": "Lesão na mucosa gástrica causando dor epigástrica e possível sangramento."
+  },
+  {
+    "id": "doenca_coronariana",
+    "nome": "Doença arterial coronariana",
+    "sintomas": ["dor_peito", "palpitacao", "dispneia", "sudorese"],
+    "painWeight": 0.9,
+    "descricao": "Problemas das artérias coronárias podendo causar dor torácica."
+  },
+  {
+    "id": "infarto",
+    "nome": "Infarto agudo do miocárdio",
+    "sintomas": ["dor_peito", "palidez", "sudorese", "tontura"],
+    "painWeight": 1.0,
+    "descricao": "Isquemia coronária grave com dor torácica intensa."
+  },
+  {
+    "id": "angina",
+    "nome": "Angina",
+    "sintomas": ["dor_peito", "dispneia", "palpitacao"],
+    "painWeight": 0.8,
+    "descricao": "Dor torácica por isquemia transitória."
+  },
+  {
+    "id": "hipertensao",
+    "nome": "Hipertensão arterial",
+    "sintomas": ["cefaleia", "tontura", "palpitacao", "hipertensao_crise"],
+    "painWeight": 0.2,
+    "descricao": "Pressão arterial alta, muitas vezes assintomática ou com picos hipertensivos."
+  },
+  {
+    "id": "acidente_vascular",
+    "nome": "AVC (Acidente Vascular Cerebral)",
+    "sintomas": ["confusao", "perda_consciencia", "tontura", "fraqueza_unilateral"],
+    "painWeight": 0.1,
+    "descricao": "Comprometimento neurológico agudo."
+  },
+  {
+    "id": "diabetes2",
+    "nome": "Diabetes tipo 2",
+    "sintomas": ["poliuria", "polidipsia", "perda_peso", "astenia"],
+    "painWeight": 0.1,
+    "descricao": "Doença metabólica com sede e micção aumentadas."
+  },
+  {
+    "id": "hipotireoidismo",
+    "nome": "Hipotireoidismo",
+    "sintomas": ["astenia", "ganho_peso", "constipacao", "frio_intolerancia"],
+    "painWeight": 0.1,
+    "genderPref": "f",
+    "descricao": "Baixa atividade da tireoide."
+  },
+  {
+    "id": "hipertireoidismo",
+    "nome": "Hipertireoidismo",
+    "sintomas": ["palpitacao", "perda_peso", "sudorese", "ansiedade_sintoma"],
+    "painWeight": 0.1,
+    "genderPref": "f",
+    "descricao": "Alta atividade da tireoide."
+  },
+  {
+    "id": "depressao",
+    "nome": "Depressão",
+    "sintomas": ["astenia", "perda_peso", "insônia_sintoma", "tristeza"],
+    "painWeight": 0.05,
+    "descricao": "Transtorno do humor com perda de interesse."
+  },
+  {
+    "id": "insônia",
+    "nome": "Insônia",
+    "sintomas": ["insônia_sintoma", "astenia", "irritabilidade"],
+    "painWeight": 0.02,
+    "descricao": "Dificuldade de sono persistente."
+  },
+  {
+    "id": "dpoc",
+    "nome": "DPOC",
+    "sintomas": ["tosse", "dispneia", "palpitacao"],
+    "painWeight": 0.3,
+    "descricao": "Doença pulmonar obstrutiva crônica."
+  },
+  {
+    "id": "artrite_reumatoide",
+    "nome": "Artrite Reumatoide",
+    "sintomas": ["dor_articular", "edema", "rigidez_matinal", "astenia", "perda_peso"],
+    "painWeight": 0.7,
+    "genderPref": "f",
+    "descricao": "Doença autoimune que causa inflamação crônica nas articulações (simétrica)."
+  },
+  {
+    "id": "gota",
+    "nome": "Gota (Ácido Úrico)",
+    "sintomas": ["dor_articular", "edema", "calafrios", "febre", "artrite_dedao_pe"],
+    "painWeight": 0.9,
+    "descricao": "Artrite inflamatória por excesso de ácido úrico, causando dor intensa (especialmente no dedão do pé)."
+  },
+  {
+    "id": "prostatite",
+    "nome": "Prostatite",
+    "sintomas": ["dor_perineal", "disuria", "polaciuria", "febre", "calafrios", "ejaculacao_dolorosa", "dispareunia"],
+    "painWeight": 0.8,
+    "genderPref": "m",
+    "descricao": "Inflamação da próstata, comum em homens, causando dor pélvica e dificuldade urinária."
+  },
+  {
+    "id": "tuberculose",
+    "nome": "Tuberculose",
+    "sintomas": ["tosse", "sudorese", "perda_peso", "febre"],
+    "painWeight": 0.2,
+    "descricao": "Infecção bacteriana crônica dos pulmões."
+  },
+  {
+    "id": "malaria",
+    "nome": "Malária",
+    "sintomas": ["febre", "calafrios", "cefaleia", "dor_corpo"],
+    "painWeight": 0.3,
+    "descricao": "Infecção transmitida por mosquito com febre alta."
+  },
+  {
+    "id": "chikungunya",
+    "nome": "Chikungunya",
+    "sintomas": ["febre", "dor_corpo", "dor_articular", "cefaleia"],
+    "painWeight": 0.4,
+    "descricao": "Doença viral com artralgia intensa."
+  },
+  {
+    "id": "zika",
+    "nome": "Zika",
+    "sintomas": ["febre", "manchas_pele", "conjuntivite", "cefaleia"],
+    "painWeight": 0.2,
+    "descricao": "Infecção viral frequentemente branda."
+  },
+  {
+    "id": "ler",
+    "nome": "LER/DORT",
+    "sintomas": ["dor_corpo", "astenia", "edema"],
+    "painWeight": 0.9,
+    "descricao": "Lesões por esforços repetitivos com dor local."
+  },
+  {
+    "id": "dermatite",
+    "nome": "Dermatite / Eczema",
+    "sintomas": ["manchas_pele", "edema"],
+    "painWeight": 0.3,
+    "descricao": "Inflamação da pele com coceira."
+  },
+  {
+    "id": "celulite",
+    "nome": "Celulite (infecção de pele)",
+    "sintomas": ["manchas_pele", "febre", "edema"],
+    "painWeight": 0.8,
+    "descricao": "Infecção cutânea com dor e calor local."
+  },
+  {
+    "id": "herpes",
+    "nome": "Herpes labial/genital",
+    "sintomas": ["manchas_pele", "febre"],
+    "painWeight": 0.6,
+    "descricao": "Infecção viral com vesículas dolorosas."
+  },
+  {
+    "id": "varicela",
+    "nome": "Varicela (catapora)",
+    "sintomas": ["febre", "manchas_pele", "cefaleia"],
+    "painWeight": 0.3,
+    "descricao": "Infecção viral com erupção generalizada."
+  },
+  {
+    "id": "sarampo",
+    "nome": "Sarampo",
+    "sintomas": ["febre", "manchas_pele", "conjuntivite", "tosse"],
+    "painWeight": 0.2,
+    "descricao": "Doença viral exantemática."
+  },
+  {
+    "id": "rubéola",
+    "nome": "Rubéola",
+    "sintomas": ["febre", "manchas_pele", "adenomegalia"],
+    "painWeight": 0.1,
+    "descricao": "Infecção viral com exantema e adenomegalia."
+  },
+  {
+    "id": "conjuntivite",
+    "nome": "Conjuntivite",
+    "sintomas": ["conjuntivite", "secrecao"],
+    "painWeight": 0.2,
+    "descricao": "Inflamação da conjuntiva ocular."
+  },
+  {
+    "id": "meningite",
+    "nome": "Meningite",
+    "sintomas": ["cefaleia", "sensibilidade_luz", "febre", "confusao"],
+    "painWeight": 1.0,
+    "descricao": "Inflamação das meninges com cefaleia intensa."
+  },
+  {
+    "id": "sepsis",
+    "nome": "Sepse",
+    "sintomas": ["febre", "calafrios", "confusao", "hipotensao", "taquicardia"],
+    "painWeight": 0.9,
+    "descricao": "Resposta inflamatória sistêmica grave a infecção."
+  },
+  {
+    "id": "anemia",
+    "nome": "Anemia",
+    "sintomas": ["astenia", "frio_intolerancia", "palidez", "tontura"],
+    "painWeight": 0.1,
+    "descricao": "Baixa hemoglobina causando fadiga."
+  },
+  {
+    "id": "endometriose",
+    "nome": "Endometriose",
+    "sintomas": ["dor_pelvica_cronica", "colica_menstrual_intensa", "dispareunia", "dor_abdominal", "constipacao", "diarreia"],
+    "painWeight": 0.9,
+    "genderPref": "f",
+    "descricao": "Crescimento do tecido endometrial fora do útero, causando dor pélvica crônica intensa."
+  },
+  {
+    "id": "candidiase",
+    "nome": "Candidíase Vaginal",
+    "sintomas": ["prurido_genital", "corrimento_genital", "disuria", "dispareunia"],
+    "painWeight": 0.4,
+    "genderPref": "f",
+    "descricao": "Infecção fúngica vaginal comum, causando coceira intensa e corrimento espesso."
+  },
+  {
+    "id": "sop",
+    "nome": "SOP (Síndrome do Ovário Policístico)",
+    "sintomas": ["ciclo_irregular", "hirsutismo", "ganho_peso", "queda_cabelo"],
+    "painWeight": 0.1,
+    "genderPref": "f",
+    "descricao": "Distúrbio hormonal comum que causa ciclos irregulares e características androgênicas."
+  },
+  {
+    "id": "epilepsia",
+    "nome": "Epilepsia",
+    "sintomas": ["convulsao", "perda_consciencia", "confusao"],
+    "painWeight": 0.2,
+    "descricao": "Transtorno neurológico com crises convulsivas."
+  },
+  {
+    "id": "apendicite",
+    "nome": "Apendicite aguda",
+    "sintomas": ["dor_abdominal", "febre", "vomito"],
+    "painWeight": 1.0,
+    "descricao": "Inflamação do apêndice com dor abdominal localizada intensa."
+  },
+  {
+    "id": "cistite_cronica",
+    "nome": "Cistite / Cistite recorrente",
+    "sintomas": ["disuria", "poliuria", "hematuria", "dor_abdominal"],
+    "painWeight": 0.6,
+    "genderPref": "f",
+    "descricao": "Inflamação da bexiga com dor miccional."
+  },
+  {
+    "id": "insuficiencia_renal",
+    "nome": "Insuficiência Renal Crônica",
+    "sintomas": ["astenia", "edema", "anuria", "nausea", "perda_apetite", "confusao", "prurido", "palidez"],
+    "painWeight": 0.2,
+    "descricao": "Perda progressiva da função renal, sintomas podem ser silenciosos no início."
+  },
+  {
+    "id": "calculo_renal",
+    "nome": "Cálculo Renal (Pedra nos Rins)",
+    "sintomas": ["dor_flanco", "hematuria", "disuria", "nausea", "vomito", "calafrios", "febre", "polaciuria"],
+    "painWeight": 1.0,
+    "descricao": "Depósitos minerais nos rins causando dor em cólica intensa que pode irradiar."
+  }
+]

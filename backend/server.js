@@ -14,6 +14,7 @@ app.use(cors());
 app.use('/api/usuarios',   require('./routes/usuarios'));
 app.use('/api/microareas', require('./routes/microareas'));
 app.use('/api/pacientes',  require('./routes/pacientes'));
+app.use('/api/triagens',   require('./routes/triagens'));
 
 // ── Auth ───────────────────────────────────────────────────────
 app.post('/api/auth/login', async (req, res) => {

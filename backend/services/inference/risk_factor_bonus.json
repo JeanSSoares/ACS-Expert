@@ -1,0 +1,65 @@
+{
+  "fumante": {
+    "dpoc": 15,
+    "infarto": 10,
+    "acidente_vascular": 10,
+    "doenca_coronariana": 10,
+    "angina": 10,
+    "hipertensao": 5,
+    "pneumonia": 5,
+    "bronquite": 5,
+    "ulcera": 5,
+    "artrite_reumatoide": 10,
+    "psoriase": 10
+  },
+  "hipertenso": {
+    "hipertensao": 15,
+    "infarto": 15,
+    "acidente_vascular": 15,
+    "doenca_coronariana": 15,
+    "angina": 15,
+    "sepsis": 5,
+    "insuficiencia_renal": 20,
+    "gota": 5
+  },
+  "diabetico": {
+    "diabetes2": 20,
+    "infarto": 10,
+    "acidente_vascular": 10,
+    "doenca_coronariana": 10,
+    "angina": 10,
+    "celulite": 10,
+    "sepsis": 5,
+    "pielonefrite": 5,
+    "insuficiencia_renal": 20,
+    "candidiase": 15,
+    "balanite_candidiaca": 15
+  },
+  "obeso": {
+    "diabetes2": 10,
+    "hipertensao": 10,
+    "infarto": 5,
+    "acidente_vascular": 5,
+    "doenca_coronariana": 5,
+    "angina": 5,
+    "calculo_renal": 5,
+    "gota": 10,
+    "artrose": 15,
+    "sop": 15,
+    "mioma_uterino": 10,
+    "psoriase": 5
+  },
+  "asmatico": {
+    "asma": 20,
+    "covid19": 5,
+    "gripe": 5,
+    "pneumonia": 5,
+    "bronquite": 5
+  },
+  "gestante": {
+    "anemia": 10,
+    "infeccao_urinaria": 10,
+    "pielonefrite": 10,
+    "hipertensao": 5
+  }
+}

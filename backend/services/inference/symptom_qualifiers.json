@@ -1,0 +1,122 @@
+{
+  "corrimento_genital": [
+    { "id": "branco_espesso",       "label": "Branco, espesso (Nata/Queijo Cottage)", "sex": "f" },
+    { "id": "amarelo_esverdeado",   "label": "Amarelo-esverdeado (com odor)",         "sex": "f" },
+    { "id": "acinzentado_odor",     "label": "Acinzentado (com odor de peixe)",       "sex": "f" },
+    { "id": "placas_brancas_glande","label": "Placas/Crostas brancas na Glande",      "sex": "m" },
+    { "id": "secrecao_uretral",     "label": "Secreção na uretra (espessa/amarela)",  "sex": "m" }
+  ],
+  "dor_corpo": [
+    { "id": "difusa_generalizada",  "label": "Difusa / Generalizada (corpo todo)" },
+    { "id": "pontos_sensiveis",     "label": "Em pontos sensíveis (ao toque)" },
+    { "id": "muscular_localizada",  "label": "Muscular / Localizada (pós-esforço)" }
+  ],
+  "ansiedade_sintoma": [
+    { "id": "foco_especifico",      "label": "Medo focado (ex: Aranha, Altura, Avião)" },
+    { "id": "ataques_subitos",      "label": "Medo súbito, intenso, \"sensação de morte\"" },
+    { "id": "preocupacao_cronica",  "label": "Preocupação crônica (sobre tudo, o dia todo)" }
+  ],
+  "sudorese": [
+    { "id": "noturno",              "label": "Predominantemente noturno (ao dormir)" },
+    { "id": "frio",                 "label": "Suor frio (pele gelada)" }
+  ],
+  "rigidez_matinal": [
+    { "id": "longa_duracao",        "label": "Longa Duração (> 30 min)" },
+    { "id": "curta_duracao",        "label": "Curta Duração (< 30 min) / Pós-repouso" }
+  ],
+  "manchas_pele": [
+    { "id": "coceira",              "label": "Com Coceira Intensa" },
+    { "id": "rash",                 "label": "Vermelhas / Elevadas (Rash)" },
+    { "id": "petequias",            "label": "Pontos Vermelhos/Roxos (Petéquias)" },
+    { "id": "placas_prateadas",     "label": "Placas secas, grossas, prateadas" },
+    { "id": "vergoes_elevados",     "label": "Vergões elevados que coçam (Urticas)" },
+    { "id": "nodulos_dolorosos",    "label": "Nódulos/Cistos dolorosos (sob a pele)" }
+  ],
+  "insônia_sintoma": [
+    { "id": "dificuldade_dormir",   "label": "Dificuldade em adormecer / manter o sono" },
+    { "id": "reducao_necessidade",  "label": "Pouca necessidade de sono (ex: 3h/noite)" }
+  ],
+  "dispareunia": [
+    { "id": "dor_profunda",         "label": "Dor profunda (pélvica)",         "sex": "f" },
+    { "id": "dor_entrada",          "label": "Dor na entrada (vaginal)",       "sex": "f" },
+    { "id": "dor_ejaculacao",       "label": "Dor durante/após ejaculação",    "sex": "m" }
+  ],
+  "tontura": [
+    { "id": "rotatoria",            "label": "Vertigem (sensação de girar)" },
+    { "id": "pre_desmaio",          "label": "Sensação de pré-desmaio / fraqueza" },
+    { "id": "desequilibrio",        "label": "Desequilíbrio / Instabilidade" }
+  ],
+  "prurido": [
+    { "id": "generalizado_renal",   "label": "Generalizada (corpo todo), sem lesão" },
+    { "id": "localizado_placas",    "label": "Localizada (sobre placas de pele)" }
+  ],
+  "prurido_genital": [
+    { "id": "corrimento_espesso",   "label": "Com corrimento branco/espesso (Nata)", "sex": "f" },
+    { "id": "vermelhidao_vulvar",   "label": "Com vermelhidão/inchaço (Vulva)",      "sex": "f" },
+    { "id": "placas_glande",        "label": "Com placas brancas (Glande)",          "sex": "m" },
+    { "id": "vermelhidao_peniana",  "label": "Com vermelhidão/inchaço (Pênis)",      "sex": "m" }
+  ],
+  "tosse": [
+    { "id": "seca",                 "label": "Seca" },
+    { "id": "catarro",              "label": "Com Catarro (Amarelo/Verde)" },
+    { "id": "sangue",               "label": "Com Sangue" }
+  ],
+  "dor_articular": [
+    { "id": "dedao_pe",             "label": "Inchaço/Dor no Dedão do Pé" },
+    { "id": "vermelhidao_calor",    "label": "Vermelhidão e calor intenso no local" },
+    { "id": "simetrica_maos",       "label": "Dor simétrica (mãos/pulsos)" }
+  ],
+  "disuria": [
+    { "id": "jato_fraco",           "label": "Jato urinário fraco / interrompido" },
+    { "id": "ardencia",             "label": "Ardência / Queimação ao urinar" }
+  ],
+  "dor_abdominal": [
+    { "id": "epigastrica",          "label": "Na \"Boca do Estômago\"" },
+    { "id": "qid",                  "label": "No Lado Direito Inferior (QID)" },
+    { "id": "colica",               "label": "Cólica / Pontada" },
+    { "id": "difusa",               "label": "Difusa / Geral" }
+  ],
+  "dor_peito": [
+    { "id": "aperto",               "label": "Em Aperto / Pressão" },
+    { "id": "irradia",              "label": "Irradia (Braço/Pescoço/Costas)" },
+    { "id": "piora_resp",           "label": "Piora ao Respirar / Tocar" }
+  ],
+  "edema": [
+    { "id": "pernas_rosto",         "label": "Em pernas, tornozelos ou rosto" },
+    { "id": "localizado_trauma",    "label": "Localizado (após pancada)" }
+  ],
+  "dor_flanco": [
+    { "id": "irradia_virilha",      "label": "Irradia para virilha / genitais" },
+    { "id": "colica_intensa",       "label": "Cólica intensa (intermitente)" }
+  ],
+  "febre": [
+    { "id": "baixa",                "label": "Baixa (< 38°C)" },
+    { "id": "moderada",             "label": "Moderada (38°C - 38.9°C)" },
+    { "id": "alta",                 "label": "Alta (≥ 39°C)" }
+  ],
+  "cefaleia": [
+    { "id": "intensa_subita",       "label": "Intensa / Súbita" },
+    { "id": "pulsatil",             "label": "Pulsátil / Latejante" },
+    { "id": "nausea_vomito",        "label": "Com Náusea / Vômito" },
+    { "id": "com_aura",             "label": "Com Aura Visual (luzes/pontos)" }
+  ],
+  "tremor_repouso": [
+    { "id": "piora_repouso",        "label": "Pior em repouso (\"contar moedas\")" },
+    { "id": "melhora_movimento",    "label": "Melhora com movimento intencional" }
+  ],
+  "sangramento_uterino_anormal": [
+    { "id": "menstruacao_longa",    "label": "Menstruação longa (> 7 dias)" },
+    { "id": "fluxo_intenso",        "label": "Fluxo muito intenso (coágulos)" },
+    { "id": "fora_do_ciclo",        "label": "Sangramento fora do ciclo" }
+  ],
+  "dispneia": [
+    { "id": "repouso",              "label": "Em Repouso" },
+    { "id": "esforco",              "label": "Ao Esforço" },
+    { "id": "chiado",               "label": "Com Chiado no Peito" }
+  ],
+  "vomito": [
+    { "id": "sangue_vom",           "label": "Com Sangue" },
+    { "id": "jato",                 "label": "Incontrolável / Jato" },
+    { "id": "pos_comer",            "label": "Após Comer" }
+  ]
+}
