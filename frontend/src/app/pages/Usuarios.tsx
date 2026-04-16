@@ -1,90 +1,59 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { UserPlus, Search, ChevronRight, ShieldCheck, Users, UserCog } from 'lucide-react';
-import type { Perfil } from '@/types';
-
-interface UsuarioItem {
-  id: number;
-  nome: string;
-  matricula: string;
-  email?: string;
-  perfil: Perfil;
-  microarea?: string;
-  ativo: boolean;
-  ultimoAcesso?: string;
-}
-
-const MOCK: UsuarioItem[] = [
-  {
-    id: 1,
-    nome: 'Ana Silva',
-    matricula: '12345-6',
-    email: 'ana.silva@saude.gov.br',
-    perfil: 'acs',
-    microarea: 'Microárea 3 — Vila Nova',
-    ativo: true,
-    ultimoAcesso: '2026-03-25',
-  },
-  {
-    id: 2,
-    nome: 'Carlos Mendes',
-    matricula: '78901-2',
-    email: 'carlos.mendes@saude.gov.br',
-    perfil: 'acs',
-    microarea: 'Microárea 1',
-    ativo: true,
-    ultimoAcesso: '2026-03-24',
-  },
-  {
-    id: 3,
-    nome: 'Maria Coordenadora',
-    matricula: '00001-1',
-    email: 'maria.coord@saude.gov.br',
-    perfil: 'coordenador',
-    ativo: true,
-    ultimoAcesso: '2026-03-26',
-  },
-  {
-    id: 4,
-    nome: 'João Gestor',
-    matricula: '00002-2',
-    perfil: 'gestor',
-    ativo: false,
-    ultimoAcesso: '2026-02-10',
-  },
-];
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { UserPlus, Search, ChevronRight, ShieldCheck, Users, UserCog, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
+import { usuariosService, type UsuarioAPI } from '@/services/usuariosService'
+import type { Perfil } from '@/types'
 
 const PERFIL_LABEL: Record<Perfil, string> = {
   acs: 'ACS',
   coordenador: 'Coordenador',
   gestor: 'Gestor',
-};
+}
 
 const PERFIL_ICON: Record<Perfil, typeof Users> = {
   acs: Users,
   coordenador: UserCog,
   gestor: ShieldCheck,
-};
+}
 
 const PERFIL_COLOR: Record<Perfil, string> = {
   acs: '#0066CC',
   coordenador: '#7C3AED',
   gestor: '#059669',
-};
+}
 
 export function Usuarios() {
-  const navigate = useNavigate();
-  const [busca, setBusca] = useState('');
-  const [filtroPerfil, setFiltroPerfil] = useState<Perfil | 'todos'>('todos');
+  const navigate = useNavigate()
 
-  const filtrados = MOCK.filter((u) => {
+  const [usuarios, setUsuarios] = useState<UsuarioAPI[]>([])
+  const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [busca, setBusca] = useState('')
+  const [filtroPerfil, setFiltroPerfil] = useState<Perfil | 'todos'>('todos')
+
+  async function carregar() {
+    try {
+      setLoading(true)
+      setErro(null)
+      const { data } = await usuariosService.listar()
+      setUsuarios(data)
+    } catch (e: any) {
+      setErro(e?.response?.data?.message ?? 'Erro ao carregar usuários.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { carregar() }, [])
+
+  const filtrados = usuarios.filter((u) => {
     const matchBusca =
       !busca ||
       u.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      u.matricula.includes(busca);
-    const matchPerfil = filtroPerfil === 'todos' || u.perfil === filtroPerfil;
-    return matchBusca && matchPerfil;
-  });
+      u.matricula.includes(busca)
+    const matchPerfil = filtroPerfil === 'todos' || u.perfil === filtroPerfil
+    return matchBusca && matchPerfil
+  })
 
   return (
     <div className="h-full flex flex-col overflow-y-auto pb-6">
@@ -93,7 +62,9 @@ export function Usuarios() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-bold text-[#0B1220]">Usuários</h2>
-            <p className="text-xs text-[#64748B] mt-0.5">{MOCK.length} cadastrados</p>
+            <p className="text-xs text-[#64748B] mt-0.5">
+              {loading ? 'Carregando…' : `${usuarios.length} cadastrados`}
+            </p>
           </div>
           <button
             onClick={() => navigate('/novo-usuario')}
@@ -134,68 +105,98 @@ export function Usuarios() {
         </div>
       </div>
 
-      {/* Lista */}
-      <div className="flex-1 px-6 py-4 space-y-3">
-        {filtrados.length === 0 && (
-          <div className="text-center py-12 text-[#64748B] text-sm">
-            Nenhum usuário encontrado.
+      {/* Conteúdo */}
+      <div className="flex-1 px-6 py-4">
+        {/* Loading */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-[#64748B]">
+            <Loader2 size={28} className="animate-spin text-[#0066CC]" />
+            <p className="text-sm">Carregando usuários…</p>
           </div>
         )}
-        {filtrados.map((u) => {
-          const Icon = PERFIL_ICON[u.perfil];
-          const cor = PERFIL_COLOR[u.perfil];
-          const iniciais = u.nome
-            .split(' ')
-            .slice(0, 2)
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase();
 
-          return (
-            <div
-              key={u.id}
-              className="bg-white rounded-xl border border-[#DBEAFE] p-4 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
-              style={{ boxShadow: '0 2px 8px rgba(16,25,40,0.04)' }}
-              onClick={() => navigate(`/usuario/${u.id}`)}
-            >
-              {/* Avatar */}
-              <div
-                className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 text-white"
-                style={{ backgroundColor: cor }}
-              >
-                {iniciais}
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-[#0B1220] text-sm truncate">{u.nome}</p>
-                  {!u.ativo && (
-                    <span className="text-[10px] bg-[#F1F5F9] text-[#64748B] px-2 py-0.5 rounded-full flex-shrink-0">
-                      Inativo
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-[#64748B] mt-0.5">Mat. {u.matricula}</p>
-                <div className="flex items-center gap-1.5 mt-1.5">
-                  <Icon size={12} style={{ color: cor }} />
-                  <span className="text-xs font-medium" style={{ color: cor }}>
-                    {PERFIL_LABEL[u.perfil]}
-                  </span>
-                  {u.microarea && (
-                    <>
-                      <span className="text-[#DBEAFE]">•</span>
-                      <span className="text-xs text-[#64748B] truncate">{u.microarea}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <ChevronRight size={18} className="text-[#64748B] flex-shrink-0" />
+        {/* Erro */}
+        {!loading && erro && (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <div className="w-12 h-12 rounded-full bg-[#FEE2E2] flex items-center justify-center">
+              <AlertCircle size={22} className="text-[#EF4444]" />
             </div>
-          );
-        })}
+            <p className="text-sm text-[#64748B] text-center">{erro}</p>
+            <button
+              onClick={carregar}
+              className="flex items-center gap-2 text-sm text-[#0066CC] font-medium hover:underline"
+            >
+              <RefreshCw size={14} />
+              Tentar novamente
+            </button>
+          </div>
+        )}
+
+        {/* Lista */}
+        {!loading && !erro && (
+          <div className="space-y-3">
+            {filtrados.length === 0 && (
+              <div className="text-center py-12 text-[#64748B] text-sm">
+                Nenhum usuário encontrado.
+              </div>
+            )}
+            {filtrados.map((u) => {
+              const Icon = PERFIL_ICON[u.perfil]
+              const cor  = PERFIL_COLOR[u.perfil]
+              const iniciais = u.nome
+                .split(' ')
+                .slice(0, 2)
+                .map((n) => n[0])
+                .join('')
+                .toUpperCase()
+
+              return (
+                <div
+                  key={u.id}
+                  className="bg-white rounded-xl border border-[#DBEAFE] p-4 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
+                  style={{ boxShadow: '0 2px 8px rgba(16,25,40,0.04)' }}
+                  onClick={() => navigate(`/usuario/${u.id}`)}
+                >
+                  {/* Avatar */}
+                  <div
+                    className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 text-white"
+                    style={{ backgroundColor: cor }}
+                  >
+                    {iniciais}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-[#0B1220] text-sm truncate">{u.nome}</p>
+                      {!u.ativo && (
+                        <span className="text-[10px] bg-[#F1F5F9] text-[#64748B] px-2 py-0.5 rounded-full flex-shrink-0">
+                          Inativo
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#64748B] mt-0.5">Mat. {u.matricula}</p>
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <Icon size={12} style={{ color: cor }} />
+                      <span className="text-xs font-medium" style={{ color: cor }}>
+                        {PERFIL_LABEL[u.perfil]}
+                      </span>
+                      {u.microarea_nome && (
+                        <>
+                          <span className="text-[#DBEAFE]">•</span>
+                          <span className="text-xs text-[#64748B] truncate">{u.microarea_nome}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <ChevronRight size={18} className="text-[#64748B] flex-shrink-0" />
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
-  );
+  )
 }

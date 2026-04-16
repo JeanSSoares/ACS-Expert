@@ -1,9 +1,46 @@
+import { useEffect, useState } from 'react';
 import { Bell, Stethoscope, Search, Calendar, ClipboardCheck } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { RiskBadge } from '../components/RiskBadge';
+import { useAuthStore } from '@/store/authStore';
+import { usuariosService, type UsuarioAPI } from '@/services/usuariosService';
+
+function saudacao(nomeCompleto?: string) {
+  const hora = new Date().getHours();
+  const prefixo = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  const primeiroNome = nomeCompleto?.trim().split(' ')[0] ?? '';
+  return primeiroNome ? `${prefixo}, ${primeiroNome}` : prefixo;
+}
+
+function iniciais(nome?: string) {
+  if (!nome) return '?';
+  return nome.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+}
+
+const PERFIL_LABEL: Record<string, string> = {
+  acs:         'Agente Comunitário de Saúde',
+  coordenador: 'Coordenador',
+  gestor:      'Gestor',
+};
 
 export function Dashboard() {
-  const navigate = useNavigate();
+  const navigate    = useNavigate();
+  const usuarioAuth = useAuthStore((s) => s.usuario);
+  const [usuario, setUsuario] = useState<UsuarioAPI | null>(null);
+
+  useEffect(() => {
+    if (!usuarioAuth?.id) return;
+    let cancelado = false;
+    usuariosService.buscarPorId(usuarioAuth.id)
+      .then(({ data }) => { if (!cancelado) setUsuario(data); })
+      .catch(() => {/* mantém fallback do store */});
+    return () => { cancelado = true; };
+  }, [usuarioAuth?.id]);
+
+  const nome     = usuario?.nome     ?? usuarioAuth?.nome;
+  const perfil   = usuario?.perfil   ?? usuarioAuth?.perfil;
+  const subtitulo = usuario?.microarea_nome
+    ?? (usuario?.municipio_nome ? `${PERFIL_LABEL[perfil ?? ''] ?? perfil} — ${usuario.municipio_nome}` : PERFIL_LABEL[perfil ?? ''] ?? '');
 
   const alerts = [
     {
@@ -41,11 +78,11 @@ export function Dashboard() {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#0066CC] flex items-center justify-center text-white font-semibold">
-                AS
+                {iniciais(nome)}
               </div>
               <div>
-                <h2 className="font-bold text-[#0B1220] text-lg lg:text-xl">Bom dia, Ana</h2>
-                <p className="text-sm text-[#64748B]">Microárea 3 — Vila Nova</p>
+                <h2 className="font-bold text-[#0B1220] text-lg lg:text-xl">{saudacao(nome)}</h2>
+                {subtitulo && <p className="text-sm text-[#64748B]">{subtitulo}</p>}
               </div>
             </div>
             <button className="relative lg:hidden" onClick={() => navigate('/alertas')}>

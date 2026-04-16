@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Pacientes } from './pages/Pacientes';
 import { PerfilPaciente } from './pages/PerfilPaciente';
 import { NovoPaciente } from './pages/NovoPaciente';
+import { EditarPaciente } from './pages/EditarPaciente';
 import { TriagemPasso1 } from './pages/TriagemPasso1';
 import { TriagemPasso2 } from './pages/TriagemPasso2';
 import { TriagemResultado } from './pages/TriagemResultado';
@@ -13,6 +14,7 @@ import { Alertas } from './pages/Alertas';
 import { Perfil } from './pages/Perfil';
 import { Usuarios } from './pages/Usuarios';
 import { NovoUsuario } from './pages/NovoUsuario';
+import { EditarUsuario } from './pages/EditarUsuario';
 import { ResponsiveLayout } from './components/ResponsiveLayout';
 
 export const router = createBrowserRouter([
@@ -53,6 +55,14 @@ export const router = createBrowserRouter([
     element: (
       <ResponsiveLayout>
         <NovoPaciente />
+      </ResponsiveLayout>
+    )
+  },
+  {
+    path: '/paciente/:id/editar',
+    element: (
+      <ResponsiveLayout>
+        <EditarPaciente />
       </ResponsiveLayout>
     )
   },
@@ -125,6 +135,14 @@ export const router = createBrowserRouter([
     element: (
       <ResponsiveLayout>
         <NovoUsuario />
+      </ResponsiveLayout>
+    )
+  },
+  {
+    path: '/usuario/:id',
+    element: (
+      <ResponsiveLayout>
+        <EditarUsuario />
       </ResponsiveLayout>
     )
   }

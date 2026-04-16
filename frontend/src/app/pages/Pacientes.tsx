@@ -1,71 +1,92 @@
-import { useState } from 'react';
-import { Search, ChevronRight, Plus, AlertCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Search, ChevronRight, Plus, AlertCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { RiskBadge } from '../components/RiskBadge';
+import {
+  pacientesService,
+  calcularIdade,
+  riscoToUI,
+  type PacienteListagem,
+} from '@/services/pacientesService';
+
+type FiltroId = 'todos' | 'alto' | 'cronicos' | 'gestantes' | 'sem-visita';
 
 export function Pacientes() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState('todos');
+  const [activeFilter, setActiveFilter] = useState<FiltroId>('todos');
+  const [pacientes, setPacientes] = useState<PacienteListagem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
 
-  const filters = [
-    { id: 'todos', label: 'Todos' },
-    { id: 'alto', label: 'Alto risco' },
-    { id: 'cronicos', label: 'Crônicos' },
-    { id: 'gestantes', label: 'Gestantes' },
-    { id: 'sem-visita', label: 'Sem visita recente' }
+  const filters: { id: FiltroId; label: string }[] = [
+    { id: 'todos',       label: 'Todos' },
+    { id: 'alto',        label: 'Alto risco' },
+    { id: 'cronicos',    label: 'Crônicos' },
+    { id: 'gestantes',   label: 'Gestantes' },
+    { id: 'sem-visita',  label: 'Sem visita recente' },
   ];
 
-  const pacientes = [
-    {
-      id: 1,
-      nome: 'Maria Silva',
-      idade: 67,
-      sexo: 'F',
-      endereco: 'Rua das Flores, 123',
-      risco: 'urgent' as const,
-      ultimaVisita: 'há 3 dias',
-      hasAlert: true
-    },
-    {
-      id: 2,
-      nome: 'João Pereira',
-      idade: 54,
-      sexo: 'M',
-      endereco: 'Av. Brasil, 456',
-      risco: 'warning' as const,
-      ultimaVisita: 'há 7 dias',
-      hasAlert: true
-    },
-    {
-      id: 3,
-      nome: 'Ana Costa',
-      idade: 32,
-      sexo: 'F',
-      endereco: 'Rua das Acácias, 789',
-      risco: 'low' as const,
-      ultimaVisita: 'há 2 dias',
-      hasAlert: false
-    },
-    {
-      id: 4,
-      nome: 'Carlos Melo',
-      idade: 45,
-      sexo: 'M',
-      endereco: 'Rua Santos, 321',
-      risco: 'warning' as const,
-      ultimaVisita: 'há 5 dias',
-      hasAlert: false
+  // Debounce da busca
+  const [debouncedBusca, setDebouncedBusca] = useState('');
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedBusca(searchTerm.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    let cancelado = false;
+    async function carregar() {
+      setLoading(true);
+      setErro(null);
+      try {
+        const { data } = await pacientesService.listar({
+          busca: debouncedBusca || undefined,
+          nivel_risco: activeFilter === 'alto' ? 'alto' : undefined,
+        });
+        if (!cancelado) setPacientes(data);
+      } catch (err: any) {
+        if (!cancelado) {
+          setErro(err?.response?.data?.message ?? 'Erro ao carregar pacientes.');
+        }
+      } finally {
+        if (!cancelado) setLoading(false);
+      }
     }
-  ];
+    carregar();
+    return () => { cancelado = true; };
+  }, [debouncedBusca, activeFilter]);
 
-  const getInitialsColor = (risco: string) => {
+  const listaFiltrada = useMemo(() => {
+    if (activeFilter === 'sem-visita') {
+      const limite = new Date();
+      limite.setDate(limite.getDate() - 30);
+      return pacientes.filter((p) => {
+        if (!p.data_ultima_visita) return true;
+        return new Date(p.data_ultima_visita) < limite;
+      });
+    }
+    return pacientes;
+  }, [pacientes, activeFilter]);
+
+  const getInitialsColor = (risco: 'urgent' | 'warning' | 'low') => {
     switch (risco) {
-      case 'urgent': return '#EF4444';
+      case 'urgent':  return '#EF4444';
       case 'warning': return '#F59E0B';
-      case 'low': return '#10B981';
-      default: return '#0066CC';
+      case 'low':     return '#10B981';
+      default:        return '#0066CC';
     }
+  };
+
+  const iniciais = (nome: string) =>
+    nome.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+
+  const formatUltimaVisita = (iso?: string) => {
+    if (!iso) return 'sem registro';
+    const dias = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000));
+    if (dias === 0) return 'hoje';
+    if (dias === 1) return 'ontem';
+    return `há ${dias} dias`;
   };
 
   return (
@@ -74,7 +95,7 @@ export function Pacientes() {
       <div className="bg-white border-b border-[#DBEAFE] px-4 lg:px-8 py-4 lg:py-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="font-bold text-[#0B1220] mb-4 text-lg lg:text-xl">Meus Pacientes</h2>
-          
+
           {/* Search */}
           <div className="relative max-w-2xl">
             <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
@@ -101,7 +122,7 @@ export function Pacientes() {
                 style={{
                   backgroundColor: activeFilter === filter.id ? '#0066CC' : '#F6F9FF',
                   color: activeFilter === filter.id ? '#FFFFFF' : '#64748B',
-                  border: activeFilter === filter.id ? 'none' : '1px solid #DBEAFE'
+                  border: activeFilter === filter.id ? 'none' : '1px solid #DBEAFE',
                 }}
               >
                 {filter.label}
@@ -111,53 +132,81 @@ export function Pacientes() {
         </div>
       </div>
 
-      {/* Lista de pacientes */}
+      {/* Conteúdo */}
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {pacientes.map((paciente) => (
-            <button
-              key={paciente.id}
-              onClick={() => navigate(`/paciente/${paciente.id}`)}
-              className="w-full bg-white rounded-xl p-4 lg:p-5 border border-[#DBEAFE] hover:border-[#0066CC] hover:shadow-lg transition-all text-left"
-              style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0"
-                  style={{ backgroundColor: getInitialsColor(paciente.risco) }}
+        {loading && (
+          <div className="flex items-center justify-center py-20 text-[#64748B]">
+            <Loader2 size={24} className="animate-spin mr-2" />
+            Carregando pacientes...
+          </div>
+        )}
+
+        {!loading && erro && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-4">
+            {erro}
+          </div>
+        )}
+
+        {!loading && !erro && listaFiltrada.length === 0 && (
+          <div className="text-center py-20 text-[#64748B]">
+            Nenhum paciente encontrado.
+          </div>
+        )}
+
+        {!loading && !erro && listaFiltrada.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            {listaFiltrada.map((paciente) => {
+              const risco = riscoToUI(paciente.nivel_risco);
+              const idade = calcularIdade(paciente.data_nascimento);
+              const endereco = [paciente.logradouro, paciente.numero].filter(Boolean).join(', ');
+              const hasAlert = risco === 'urgent';
+
+              return (
+                <button
+                  key={paciente.id}
+                  onClick={() => navigate(`/paciente/${paciente.id}`)}
+                  className="w-full bg-white rounded-xl p-4 lg:p-5 border border-[#DBEAFE] hover:border-[#0066CC] hover:shadow-lg transition-all text-left"
+                  style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
                 >
-                  {paciente.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="font-semibold text-[#0B1220]">{paciente.nome}</h3>
-                    {paciente.hasAlert && (
-                      <AlertCircle size={16} className="text-[#EF4444] flex-shrink-0" />
-                    )}
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0"
+                      style={{ backgroundColor: getInitialsColor(risco) }}
+                    >
+                      {iniciais(paciente.nome)}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <h3 className="font-semibold text-[#0B1220]">{paciente.nome}</h3>
+                        {hasAlert && (
+                          <AlertCircle size={16} className="text-[#EF4444] flex-shrink-0" />
+                        )}
+                      </div>
+
+                      <p className="text-sm text-[#64748B] mb-2">
+                        {idade} anos • {paciente.sexo === 'm' ? 'M' : 'F'}
+                      </p>
+
+                      <p className="text-sm text-[#64748B] mb-3 truncate">
+                        {endereco || 'Endereço não informado'}
+                      </p>
+
+                      <div className="flex items-center justify-between">
+                        <RiskBadge level={risco} />
+                        <span className="text-xs text-[#64748B]">
+                          Última visita: {formatUltimaVisita(paciente.data_ultima_visita)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <ChevronRight size={20} className="text-[#64748B] flex-shrink-0 mt-2" />
                   </div>
-                  
-                  <p className="text-sm text-[#64748B] mb-2">
-                    {paciente.idade} anos • {paciente.sexo}
-                  </p>
-                  
-                  <p className="text-sm text-[#64748B] mb-3 truncate">
-                    {paciente.endereco}
-                  </p>
-                  
-                  <div className="flex items-center justify-between">
-                    <RiskBadge level={paciente.risco} />
-                    <span className="text-xs text-[#64748B]">
-                      Última visita: {paciente.ultimaVisita}
-                    </span>
-                  </div>
-                </div>
-                
-                <ChevronRight size={20} className="text-[#64748B] flex-shrink-0 mt-2" />
-              </div>
-            </button>
-          ))}
-        </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* FAB */}

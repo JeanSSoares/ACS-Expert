@@ -1,17 +1,36 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Eye, EyeOff, Wifi } from 'lucide-react';
-// logo placeholder — substitua por um arquivo SVG/PNG em src/assets/logo.svg
+import { Eye, EyeOff, Wifi, Loader2, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import logo from '@/assets/logo.png';
 
 export function Login() {
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [matricula, setMatricula] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/dashboard');
+    if (!matricula || !password) {
+      setErro('Informe a matrícula e a senha.');
+      return;
+    }
+    setLoading(true);
+    setErro(null);
+    try {
+      await login({ matricula, senha: password });
+    } catch (err: any) {
+      const data = err?.response?.data;
+      const msg = data?.message ?? 'Erro ao fazer login. Tente novamente.';
+      const detalhe = data?.error ? ` (${data.error})` : '';
+      setErro(msg + detalhe);
+      // eslint-disable-next-line no-console
+      console.error('[LOGIN] Falha:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -20,7 +39,11 @@ export function Login() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0066CC] to-[#0052A3] p-12 items-center justify-center">
         <div className="max-w-md text-white">
           <div className="mb-6">
-            <div className="w-32 h-32 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-4xl">A</div>
+            <img
+              src={logo}
+              alt="ACS-Expert"
+              className="w-32 h-32 rounded-full object-cover bg-white shadow-lg"
+            />
           </div>
           <h1 className="text-4xl font-bold mb-4">ACS-Expert</h1>
           <p className="text-xl text-white/90 mb-8">
@@ -66,7 +89,11 @@ export function Login() {
           {/* Logo - Mobile only */}
           <div className="flex flex-col items-center mb-8 lg:hidden">
             <div className="mb-4">
-              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-3xl">A</div>
+              <img
+                src={logo}
+                alt="ACS-Expert"
+                className="w-24 h-24 rounded-full object-cover bg-white shadow-lg"
+              />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">ACS-Expert</h1>
             <p className="text-sm text-white/90 text-center">
@@ -82,12 +109,19 @@ export function Login() {
 
           {/* Form */}
           <form onSubmit={handleLogin} className="w-full max-w-md space-y-4 mt-8">
+            {erro && (
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur rounded-xl px-4 py-3 text-white text-sm">
+                <AlertCircle size={16} className="flex-shrink-0" />
+                {erro}
+              </div>
+            )}
+
             <div>
               <input
                 type="text"
-                placeholder="Nome / Matrícula do ACS"
+                placeholder="Matrícula"
                 value={matricula}
-                onChange={(e) => setMatricula(e.target.value)}
+                onChange={(e) => { setMatricula(e.target.value); setErro(null); }}
                 className="w-full px-4 py-3 rounded-xl bg-white/95 backdrop-blur border border-white/50 text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-white/50"
               />
             </div>
@@ -97,7 +131,7 @@ export function Login() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Senha"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setErro(null); }}
                 className="w-full px-4 py-3 rounded-xl bg-white/95 backdrop-blur border border-white/50 text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-white/50 pr-12"
               />
               <button
@@ -111,9 +145,11 @@ export function Login() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-white text-[#0066CC] font-semibold hover:bg-white/90 transition-colors shadow-lg"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-white text-[#0066CC] font-semibold hover:bg-white/90 transition-colors shadow-lg disabled:opacity-70 flex items-center justify-center gap-2"
             >
-              Entrar
+              {loading && <Loader2 size={18} className="animate-spin" />}
+              {loading ? 'Entrando…' : 'Entrar'}
             </button>
 
             <button

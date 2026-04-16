@@ -9,11 +9,13 @@ import {
   LogOut,
   UserCog,
 } from 'lucide-react';
-// logo placeholder — substitua por um arquivo SVG/PNG em src/assets/logo.svg
+import { useAuth } from '@/hooks/useAuth';
+import logo from '@/assets/logo.png';
 
 export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
@@ -25,16 +27,16 @@ export function Sidebar() {
     { id: 'perfil', label: 'Perfil', icon: User, path: '/perfil' },
   ];
 
-  const handleLogout = () => {
-    navigate('/');
-  };
-
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-[#DBEAFE] h-screen sticky top-0">
       {/* Logo/Header */}
       <div className="p-6 border-b border-[#DBEAFE]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-acs-primary flex items-center justify-center text-white font-bold text-sm">A</div>
+          <img
+            src={logo}
+            alt="ACS-Expert"
+            className="w-10 h-10 rounded-full object-cover bg-white"
+          />
           <div>
             <h1 className="font-bold text-[#0B1220]">ACS-Expert</h1>
             <p className="text-xs text-[#64748B]">Sistema SUS</p>
@@ -74,7 +76,7 @@ export function Sidebar() {
       {/* Footer - Logout */}
       <div className="p-4 border-t border-[#DBEAFE]">
         <button
-          onClick={handleLogout}
+          onClick={logout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-[#64748B] hover:bg-[#FEF2F2] hover:text-[#EF4444] transition-all"
         >
           <LogOut size={20} />

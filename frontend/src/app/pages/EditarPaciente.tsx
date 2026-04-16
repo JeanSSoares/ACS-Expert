@@ -1,8 +1,11 @@
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { pacientesService, type CriarPacientePayload } from '@/services/pacientesService';
+import {
+  pacientesService,
+  type AtualizarPacientePayload,
+} from '@/services/pacientesService';
 import { microareasService, type MicroareaAPI } from '@/services/usuariosService';
 import type { Comorbidade, Sexo } from '@/types';
 
@@ -18,23 +21,39 @@ const COMORBIDADES: { id: Comorbidade; label: string }[] = [
   { id: 'imunossuprimido',label: 'Imunossuprimido(a)' },
 ];
 
-export function NovoPaciente() {
+// Converte '2026-04-16T00:00:00.000Z' ou 'Mon Apr 16 2026 ...' → 'YYYY-MM-DD'
+function toInputDate(valor?: string): string {
+  if (!valor) return '';
+  const d = new Date(valor);
+  if (Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+
+export function EditarPaciente() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const usuarioAuth = useAuthStore((s) => s.usuario);
+
+  // Carregamento
+  const [loading, setLoading]   = useState(true);
+  const [erroLoad, setErroLoad] = useState<string | null>(null);
 
   // Identificação
   const [nome, setNome] = useState('');
-  const [cpf, setCpf] = useState('');
-  const [cns, setCns] = useState('');
+  const [cpf, setCpf]   = useState('');
+  const [cns, setCns]   = useState('');
   const [dataNascimento, setDataNascimento] = useState('');
   const [sexo, setSexo] = useState<Sexo>('f');
 
   // Localização
-  const [logradouro, setLogradouro] = useState('');
-  const [numero, setNumero] = useState('');
+  const [logradouro, setLogradouro]   = useState('');
+  const [numero, setNumero]           = useState('');
   const [complemento, setComplemento] = useState('');
-  const [bairro, setBairro] = useState('');
-  const [cep, setCep] = useState('');
+  const [bairro, setBairro]           = useState('');
+  const [cep, setCep]                 = useState('');
   const [microareaId, setMicroareaId] = useState<string>('');
   const [nomeReferencia, setNomeReferencia] = useState('');
 
@@ -47,24 +66,61 @@ export function NovoPaciente() {
   // Comorbidades
   const [comorbidadesSel, setComorbidadesSel] = useState<Set<Comorbidade>>(new Set());
 
-  // Microáreas
+  // Dados auxiliares
   const [microareas, setMicroareas] = useState<MicroareaAPI[]>([]);
 
   // Submit
   const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [erro, setErro]         = useState<string | null>(null);
 
+  // Carrega paciente + microáreas em paralelo
   useEffect(() => {
-    async function carregarMicroareas() {
+    if (!id) return;
+    let cancelado = false;
+
+    async function carregar() {
+      setLoading(true);
+      setErroLoad(null);
       try {
-        const { data } = await microareasService.listar(usuarioAuth?.municipioId);
-        setMicroareas(data);
-      } catch {
-        // se falhar, deixa vazio — o campo ainda será opcional
+        const [{ data: paciente }, { data: areas }] = await Promise.all([
+          pacientesService.buscarPorId(Number(id)),
+          microareasService.listar(usuarioAuth?.municipioId),
+        ]);
+        if (cancelado) return;
+
+        setNome(paciente.nome ?? '');
+        setCpf(paciente.cpf ?? '');
+        setCns(paciente.cns ?? '');
+        setDataNascimento(toInputDate(paciente.data_nascimento));
+        setSexo(paciente.sexo);
+
+        setLogradouro(paciente.logradouro ?? '');
+        setNumero(paciente.numero ?? '');
+        setComplemento(paciente.complemento ?? '');
+        setBairro(paciente.bairro ?? '');
+        setCep(paciente.cep ?? '');
+        setMicroareaId(paciente.microarea_id ? String(paciente.microarea_id) : '');
+        setNomeReferencia(paciente.nome_referencia ?? '');
+
+        setIdosoMoraSozinho(Boolean(paciente.idoso_mora_sozinho));
+        setVulnerabilidadeSocial(Boolean(paciente.vulnerabilidade_social));
+        setDificuldadeLocomocao(Boolean(paciente.dificuldade_locomocao));
+        setBeneficioSocial(Boolean(paciente.beneficio_social));
+
+        setComorbidadesSel(new Set(paciente.comorbidades ?? []));
+        setMicroareas(areas);
+      } catch (err: any) {
+        if (!cancelado) {
+          setErroLoad(err?.response?.data?.message ?? 'Erro ao carregar paciente.');
+        }
+      } finally {
+        if (!cancelado) setLoading(false);
       }
     }
-    carregarMicroareas();
-  }, [usuarioAuth?.municipioId]);
+
+    carregar();
+    return () => { cancelado = true; };
+  }, [id, usuarioAuth?.municipioId]);
 
   const toggleComorbidade = (c: Comorbidade) => {
     setComorbidadesSel((prev) => {
@@ -77,12 +133,13 @@ export function NovoPaciente() {
   const handleSalvar = async () => {
     setErro(null);
 
+    if (!id) return;
     if (!nome.trim() || !dataNascimento || !sexo) {
       setErro('Preencha nome, data de nascimento e sexo.');
       return;
     }
 
-    const payload: CriarPacientePayload = {
+    const payload: AtualizarPacientePayload = {
       nome: nome.trim(),
       cpf: cpf || undefined,
       cns: cns || undefined,
@@ -109,10 +166,15 @@ export function NovoPaciente() {
 
     setSalvando(true);
     try {
-      await pacientesService.criar(payload);
-      navigate('/pacientes');
+      await pacientesService.atualizar(Number(id), payload);
+      navigate(`/paciente/${id}`);
     } catch (err: any) {
-      setErro(err?.response?.data?.message ?? 'Erro ao salvar paciente.');
+      // eslint-disable-next-line no-console
+      console.error('[EditarPaciente] Falha ao atualizar:', err);
+      const data   = err?.response?.data;
+      const msg    = data?.message ?? err?.message ?? 'Erro ao salvar alterações.';
+      const detail = data?.error ? ` (${data.error})` : '';
+      setErro(msg + detail);
     } finally {
       setSalvando(false);
     }
@@ -120,6 +182,7 @@ export function NovoPaciente() {
 
   const sexoButton = (val: Sexo, label: string) => (
     <button
+      type="button"
       onClick={() => setSexo(val)}
       className="flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors"
       style={{
@@ -132,6 +195,29 @@ export function NovoPaciente() {
     </button>
   );
 
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center gap-2 text-[#64748B]">
+        <Loader2 size={20} className="animate-spin" />
+        Carregando dados do paciente...
+      </div>
+    );
+  }
+
+  if (erroLoad) {
+    return (
+      <div className="h-full flex flex-col p-6">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#0B1220] mb-6">
+          <ArrowLeft size={20} /> Voltar
+        </button>
+        <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4">
+          <AlertCircle size={18} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-[#B91C1C]">{erroLoad}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col overflow-y-auto pb-24">
       {/* Header */}
@@ -140,7 +226,7 @@ export function NovoPaciente() {
           <button onClick={() => navigate(-1)}>
             <ArrowLeft size={24} color="#0B1220" />
           </button>
-          <h2 className="font-bold text-[#0B1220]">Novo Paciente</h2>
+          <h2 className="font-bold text-[#0B1220]">Editar paciente</h2>
         </div>
       </div>
 
@@ -164,8 +250,7 @@ export function NovoPaciente() {
                 type="text"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
-                placeholder="Digite o nome completo"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
               />
             </div>
 
@@ -181,7 +266,7 @@ export function NovoPaciente() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">CNS (Cartão Nacional de Saúde)</label>
+              <label className="text-sm font-medium text-[#0B1220] block mb-2">CNS</label>
               <input
                 type="text"
                 value={cns}
@@ -225,8 +310,7 @@ export function NovoPaciente() {
                 type="text"
                 value={logradouro}
                 onChange={(e) => setLogradouro(e.target.value)}
-                placeholder="Ex: Rua das Flores"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
               />
             </div>
 
@@ -237,8 +321,7 @@ export function NovoPaciente() {
                   type="text"
                   value={numero}
                   onChange={(e) => setNumero(e.target.value)}
-                  placeholder="123"
-                  className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                  className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
                 />
               </div>
               <div>
@@ -247,8 +330,7 @@ export function NovoPaciente() {
                   type="text"
                   value={cep}
                   onChange={(e) => setCep(e.target.value)}
-                  placeholder="00000-000"
-                  className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                  className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
                 />
               </div>
             </div>
@@ -259,8 +341,7 @@ export function NovoPaciente() {
                 type="text"
                 value={bairro}
                 onChange={(e) => setBairro(e.target.value)}
-                placeholder="Ex: Centro"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
               />
             </div>
 
@@ -270,8 +351,7 @@ export function NovoPaciente() {
                 type="text"
                 value={complemento}
                 onChange={(e) => setComplemento(e.target.value)}
-                placeholder="Apto, bloco, etc."
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
               />
             </div>
 
@@ -294,8 +374,7 @@ export function NovoPaciente() {
               <textarea
                 value={nomeReferencia}
                 onChange={(e) => setNomeReferencia(e.target.value)}
-                placeholder="Ex: Próximo ao mercado, casa azul..."
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 resize-none"
+                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 resize-none"
                 rows={2}
               />
             </div>
@@ -307,10 +386,10 @@ export function NovoPaciente() {
           <h3 className="font-semibold text-[#0B1220] mb-3">Contexto Social</h3>
           <div className="space-y-2">
             {[
-              { checked: idosoMoraSozinho,       set: setIdosoMoraSozinho,       label: 'Idoso que mora sozinho' },
-              { checked: vulnerabilidadeSocial,  set: setVulnerabilidadeSocial,  label: 'Família em situação de vulnerabilidade' },
-              { checked: dificuldadeLocomocao,   set: setDificuldadeLocomocao,   label: 'Dificuldade de locomoção' },
-              { checked: beneficioSocial,        set: setBeneficioSocial,        label: 'Beneficiário de programa social' },
+              { checked: idosoMoraSozinho,      set: setIdosoMoraSozinho,      label: 'Idoso que mora sozinho' },
+              { checked: vulnerabilidadeSocial, set: setVulnerabilidadeSocial, label: 'Família em situação de vulnerabilidade' },
+              { checked: dificuldadeLocomocao,  set: setDificuldadeLocomocao,  label: 'Dificuldade de locomoção' },
+              { checked: beneficioSocial,       set: setBeneficioSocial,       label: 'Beneficiário de programa social' },
             ].map((item) => (
               <label key={item.label} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#DBEAFE] cursor-pointer">
                 <input
@@ -352,7 +431,7 @@ export function NovoPaciente() {
       </div>
 
       {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DBEAFE] p-4 max-w-[390px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DBEAFE] p-4 max-w-[800px] mx-auto">
         <div className="flex gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -367,7 +446,7 @@ export function NovoPaciente() {
             className="flex-1 py-3 bg-[#0066CC] text-white rounded-xl font-semibold hover:bg-[#0052A3] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
           >
             {salvando && <Loader2 size={18} className="animate-spin" />}
-            {salvando ? 'Salvando...' : 'Salvar Paciente'}
+            {salvando ? 'Salvando...' : 'Salvar alterações'}
           </button>
         </div>
       </div>
