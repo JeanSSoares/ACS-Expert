@@ -1,47 +1,109 @@
 import { create } from 'zustand'
-import type { TriagemInput, AvaliarTriagemResponse, Triagem } from '@/types'
+import type { Comorbidade, Sexo, TipoVisita } from '@/types'
+import type {
+  CatalogoTriagem,
+  FaixaEtariaStr,
+  TriagemResultadoAPI,
+} from '@/services/triagensService'
+
+// Estado da triagem em andamento — ephemeral (não persistimos em localStorage)
+
+export interface TriagemContextoPaciente {
+  id:          number
+  nome:        string
+  idade:       number
+  sexo:        Sexo
+  faixaEtaria: FaixaEtariaStr
+}
+
+export interface TriagemSintomaSel {
+  intensity: number
+}
 
 interface TriagemState {
-  // Wizard state (passo 1 → passo 2 → resultado)
-  pacienteId: number | null
-  visitaId: number | null
-  input: Partial<TriagemInput>
-  resultado: AvaliarTriagemResponse | null
-  triagemSalva: Triagem | null
-  loading: boolean
-  error: string | null
+  paciente:    TriagemContextoPaciente | null
+  tipoVisita:  TipoVisita
+  observacao:  string
+  riskFactors: Comorbidade[]
+  sintomas:    Record<string, TriagemSintomaSel>
+  qualifiers:  Record<string, Record<string, boolean>>
+  catalogo:    CatalogoTriagem | null
+  resultado:   TriagemResultadoAPI | null
 
-  initTriagem: (pacienteId: number, visitaId?: number) => void
-  updateInput: (partial: Partial<TriagemInput>) => void
-  setResultado: (r: AvaliarTriagemResponse) => void
-  setTriagemSalva: (t: Triagem) => void
-  setLoading: (v: boolean) => void
-  setError: (msg: string | null) => void
-  reset: () => void
+  // Actions
+  setPaciente:      (p: TriagemContextoPaciente) => void
+  setTipoVisita:    (t: TipoVisita) => void
+  setObservacao:    (o: string) => void
+  toggleRiskFactor: (f: Comorbidade) => void
+  setRiskFactors:   (list: Comorbidade[]) => void
+  toggleSintoma:    (id: string) => void
+  setIntensidade:   (id: string, v: number) => void
+  toggleQualifier:  (sintomaId: string, qualifierId: string) => void
+  setCatalogo:      (c: CatalogoTriagem) => void
+  setResultado:     (r: TriagemResultadoAPI | null) => void
+  reset:            () => void
 }
 
-const initialState = {
-  pacienteId: null,
-  visitaId: null,
-  input: {},
-  resultado: null,
-  triagemSalva: null,
-  loading: false,
-  error: null,
+const estadoInicial = {
+  paciente:    null,
+  tipoVisita:  'rotina' as TipoVisita,
+  observacao:  '',
+  riskFactors: [] as Comorbidade[],
+  sintomas:    {} as Record<string, TriagemSintomaSel>,
+  qualifiers:  {} as Record<string, Record<string, boolean>>,
+  catalogo:    null,
+  resultado:   null,
 }
 
-export const useTriagemStore = create<TriagemState>((set) => ({
-  ...initialState,
+export const useTriagemStore = create<TriagemState>()((set) => ({
+  ...estadoInicial,
 
-  initTriagem: (pacienteId, visitaId) =>
-    set({ ...initialState, pacienteId, visitaId: visitaId ?? null }),
+  setPaciente:   (p) => set({ paciente: p }),
+  setTipoVisita: (t) => set({ tipoVisita: t }),
+  setObservacao: (o) => set({ observacao: o }),
 
-  updateInput: (partial) =>
-    set((state) => ({ input: { ...state.input, ...partial } })),
+  toggleRiskFactor: (f) =>
+    set((state) => ({
+      riskFactors: state.riskFactors.includes(f)
+        ? state.riskFactors.filter((x) => x !== f)
+        : [...state.riskFactors, f],
+    })),
 
+  setRiskFactors: (list) => set({ riskFactors: list }),
+
+  toggleSintoma: (id) =>
+    set((state) => {
+      const next = { ...state.sintomas }
+      const nextQuali = { ...state.qualifiers }
+      if (next[id]) {
+        delete next[id]
+        delete nextQuali[id]
+      } else {
+        next[id] = { intensity: 5 }
+      }
+      return { sintomas: next, qualifiers: nextQuali }
+    }),
+
+  setIntensidade: (id, v) =>
+    set((state) => ({
+      sintomas: state.sintomas[id]
+        ? { ...state.sintomas, [id]: { intensity: v } }
+        : state.sintomas,
+    })),
+
+  toggleQualifier: (sintomaId, qualifierId) =>
+    set((state) => {
+      const current = state.qualifiers[sintomaId] ?? {}
+      return {
+        qualifiers: {
+          ...state.qualifiers,
+          [sintomaId]: { ...current, [qualifierId]: !current[qualifierId] },
+        },
+      }
+    }),
+
+  setCatalogo:  (c) => set({ catalogo: c }),
   setResultado: (r) => set({ resultado: r }),
-  setTriagemSalva: (t) => set({ triagemSalva: t }),
-  setLoading: (v) => set({ loading: v }),
-  setError: (msg) => set({ error: msg }),
-  reset: () => set(initialState),
+
+  reset: () => set({ ...estadoInicial }),
 }))
