@@ -19,7 +19,7 @@ const PERFIL_ICON: Record<Perfil, typeof Users> = {
 }
 
 const PERFIL_COLOR: Record<Perfil, string> = {
-  acs: '#0066CC', coordenador: '#7C3AED', gestor: '#059669',
+  acs: 'var(--acs-azul)', coordenador: '#7C3AED', gestor: '#059669',
 }
 
 function InputField({ label, required, error, children }: {
@@ -27,12 +27,12 @@ function InputField({ label, required, error, children }: {
 }) {
   return (
     <div>
-      <label className="text-sm font-medium text-[#0B1220] block mb-2">
-        {label}{required && <span className="text-[#EF4444] ml-1">*</span>}
+      <label className="text-sm font-medium text-acs-ink block mb-2">
+        {label}{required && <span className="text-acs-vermelho ml-1">*</span>}
       </label>
       {children}
       {error && (
-        <p className="mt-1.5 text-xs text-[#EF4444] flex items-center gap-1">
+        <p className="mt-1.5 text-xs text-acs-vermelho flex items-center gap-1">
           <AlertCircle size={12} />{error}
         </p>
       )}
@@ -40,9 +40,9 @@ function InputField({ label, required, error, children }: {
   )
 }
 
-const inputClass      = 'w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 text-sm'
-const inputErrorClass = 'w-full px-4 py-2.5 rounded-lg border border-[#EF4444] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/20 text-sm'
-const inputDisabled   = 'w-full px-4 py-2.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] text-[#64748B] text-sm cursor-not-allowed'
+const inputClass      = 'w-full px-4 py-2.5 rounded-xl border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul text-sm'
+const inputErrorClass = 'w-full px-4 py-2.5 rounded-xl border border-acs-vermelho bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-vermelho/20 text-sm'
+const inputDisabled   = 'w-full px-4 py-2.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-acs-ink-3 text-sm cursor-not-allowed'
 
 export function EditarUsuario() {
   const { id }     = useParams<{ id: string }>()
@@ -199,8 +199,8 @@ export function EditarUsuario() {
   // ── Renders ────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="h-full flex flex-col items-center justify-center gap-3 text-[#64748B]">
-        <Loader2 size={28} className="animate-spin text-[#0066CC]" />
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-acs-ink-3">
+        <Loader2 size={28} className="animate-spin text-acs-azul" />
         <p className="text-sm">Carregando usuário…</p>
       </div>
     )
@@ -209,12 +209,12 @@ export function EditarUsuario() {
   if (erroCarregar) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 px-6">
-        <div className="w-12 h-12 rounded-full bg-[#FEE2E2] flex items-center justify-center">
-          <AlertCircle size={22} className="text-[#EF4444]" />
+        <div className="w-12 h-12 rounded-full bg-acs-vermelho-100 flex items-center justify-center">
+          <AlertCircle size={22} className="text-acs-vermelho" />
         </div>
-        <p className="text-sm text-[#64748B] text-center">{erroCarregar}</p>
+        <p className="text-sm text-acs-ink-3 text-center">{erroCarregar}</p>
         <button onClick={() => navigate('/usuarios')}
-          className="text-sm text-[#0066CC] font-medium hover:underline">
+          className="text-sm text-acs-azul font-medium hover:underline">
           Voltar à lista
         </button>
       </div>
@@ -231,14 +231,14 @@ export function EditarUsuario() {
   return (
     <div className="h-full flex flex-col overflow-y-auto pb-28">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-6 py-4 flex-shrink-0">
+      <div className="bg-white border-b border-acs-line px-6 py-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => navigate('/usuarios')}>
-            <ArrowLeft size={24} color="#0B1220" />
+            <ArrowLeft size={24} className="text-acs-ink" />
           </button>
           <div>
-            <h2 className="font-bold text-[#0B1220]">Editar usuário</h2>
-            <p className="text-xs text-[#64748B]">Mat. {usuario.matricula}</p>
+            <h2 className="font-bold text-acs-ink font-display">Editar usuário</h2>
+            <p className="text-xs text-acs-ink-3">Mat. {usuario.matricula}</p>
           </div>
         </div>
 
@@ -249,14 +249,14 @@ export function EditarUsuario() {
             {iniciais}
           </div>
           <div>
-            <p className="font-semibold text-[#0B1220] text-sm">{usuario.nome}</p>
+            <p className="font-semibold text-acs-ink text-sm">{usuario.nome}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <PIcon size={12} style={{ color: pCor }} />
               <span className="text-xs font-medium" style={{ color: pCor }}>
                 {PERFIL_OPTIONS.find((p) => p.value === usuario.perfil)?.label}
               </span>
               {!usuario.ativo && (
-                <span className="text-[10px] bg-[#F1F5F9] text-[#64748B] px-2 py-0.5 rounded-full">Inativo</span>
+                <span className="text-[10px] bg-[#F1F5F9] text-acs-ink-3 px-2 py-0.5 rounded-full">Inativo</span>
               )}
             </div>
           </div>
@@ -266,15 +266,15 @@ export function EditarUsuario() {
       <div className="flex-1 px-6 py-5 space-y-7">
         {/* Erro geral */}
         {erroApi && (
-          <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4">
-            <AlertCircle size={18} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-[#FECACA] rounded-xl p-4">
+            <AlertCircle size={18} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
             <p className="text-sm text-[#B91C1C]">{erroApi}</p>
           </div>
         )}
 
         {sucesso && (
-          <div className="flex items-center gap-3 bg-[#DCFCE7] border border-[#BBF7D0] rounded-xl p-4">
-            <CheckCircle2 size={18} className="text-[#10B981] flex-shrink-0" />
+          <div className="flex items-center gap-3 bg-acs-verde-100 border border-[#BBF7D0] rounded-xl p-4">
+            <CheckCircle2 size={18} className="text-acs-verde flex-shrink-0" />
             <p className="text-sm text-[#065F46] font-medium">Dados salvos com sucesso!</p>
           </div>
         )}
@@ -282,8 +282,8 @@ export function EditarUsuario() {
         {/* ── 1. Identificação ────────────────────────── */}
         <form onSubmit={handleSalvar} noValidate>
           <section>
-            <h3 className="font-semibold text-[#0B1220] mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#0066CC] text-white text-xs flex items-center justify-center font-bold">1</span>
+            <h3 className="font-semibold text-acs-ink mb-4 flex items-center gap-2 font-display">
+              <span className="w-6 h-6 rounded-full bg-acs-azul text-white text-xs flex items-center justify-center font-bold">1</span>
               Identificação
             </h3>
             <div className="space-y-4">
@@ -306,13 +306,13 @@ export function EditarUsuario() {
 
           {/* ── 2. Perfil ──────────────────────────────── */}
           <section className="mt-7">
-            <h3 className="font-semibold text-[#0B1220] mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#0066CC] text-white text-xs flex items-center justify-center font-bold">2</span>
+            <h3 className="font-semibold text-acs-ink mb-4 flex items-center gap-2 font-display">
+              <span className="w-6 h-6 rounded-full bg-acs-azul text-white text-xs flex items-center justify-center font-bold">2</span>
               Perfil de acesso
             </h3>
 
             {errors.perfil && (
-              <p className="mb-3 text-xs text-[#EF4444] flex items-center gap-1">
+              <p className="mb-3 text-xs text-acs-vermelho flex items-center gap-1">
                 <AlertCircle size={12} />{errors.perfil}
               </p>
             )}
@@ -324,16 +324,16 @@ export function EditarUsuario() {
                   <button key={op.value} type="button"
                     onClick={() => { setPerfil(op.value); if (op.value !== 'acs') setMicroareaId(''); setErrors((p) => ({ ...p, perfil: undefined, microareaId: undefined })) }}
                     className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                      isAtivo ? 'border-[#0066CC] bg-[#E8F0FE]' : 'border-[#DBEAFE] bg-white hover:border-[#0066CC]/40'
+                      isAtivo ? 'border-acs-azul bg-[#E8F0FE]' : 'border-acs-line bg-white hover:border-acs-azul/40'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0 ${isAtivo ? 'border-[#0066CC] bg-[#0066CC]' : 'border-[#CBD5E1]'}`}>
+                      <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0 ${isAtivo ? 'border-acs-azul bg-acs-azul' : 'border-[#CBD5E1]'}`}>
                         {isAtivo && <div className="w-full h-full rounded-full bg-white scale-[0.4]" />}
                       </div>
                       <div>
-                        <p className={`font-semibold text-sm ${isAtivo ? 'text-[#0066CC]' : 'text-[#0B1220]'}`}>{op.label}</p>
-                        <p className="text-xs text-[#64748B] mt-0.5">{op.descricao}</p>
+                        <p className={`font-semibold text-sm ${isAtivo ? 'text-acs-azul' : 'text-acs-ink'}`}>{op.label}</p>
+                        <p className="text-xs text-acs-ink-3 mt-0.5">{op.descricao}</p>
                       </div>
                     </div>
                   </button>
@@ -359,13 +359,13 @@ export function EditarUsuario() {
 
           {/* ── Status ─────────────────────────────────── */}
           <section className="mt-7">
-            <label className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#DBEAFE] cursor-pointer hover:bg-[#F6F9FF] transition-colors">
+            <label className="flex items-center justify-between p-4 bg-white rounded-xl border border-acs-line cursor-pointer hover:bg-background transition-colors">
               <div>
-                <p className="font-medium text-sm text-[#0B1220]">Usuário ativo</p>
-                <p className="text-xs text-[#64748B] mt-0.5">Permite acesso ao sistema</p>
+                <p className="font-medium text-sm text-acs-ink">Usuário ativo</p>
+                <p className="text-xs text-acs-ink-3 mt-0.5">Permite acesso ao sistema</p>
               </div>
               <div onClick={() => setAtivo((v) => !v)}
-                className={`w-12 h-6 rounded-full transition-colors relative ${ativo ? 'bg-[#0066CC]' : 'bg-[#CBD5E1]'}`}>
+                className={`w-12 h-6 rounded-full transition-colors relative ${ativo ? 'bg-acs-azul' : 'bg-[#CBD5E1]'}`}>
                 <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform shadow ${ativo ? 'translate-x-6' : 'translate-x-0.5'}`} />
               </div>
             </label>
@@ -374,7 +374,7 @@ export function EditarUsuario() {
           {/* Botão salvar */}
           <div className="mt-6">
             <button type="submit" disabled={salvando}
-              className="w-full py-3 bg-[#0066CC] text-white rounded-xl font-semibold text-sm hover:bg-[#0052A3] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+              className="w-full py-3 bg-acs-azul text-white rounded-xl font-semibold text-sm hover:bg-acs-azul-900 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
               {salvando && <Loader2 size={16} className="animate-spin" />}
               {salvando ? 'Salvando…' : 'Salvar alterações'}
             </button>
@@ -382,30 +382,30 @@ export function EditarUsuario() {
         </form>
 
         {/* ── 3. Alterar senha ───────────────────────── */}
-        <section className="bg-white rounded-xl border border-[#DBEAFE] overflow-hidden">
+        <section className="bg-white rounded-xl border border-acs-line overflow-hidden">
           <button
             type="button"
             onClick={() => setSenhaAberta((v) => !v)}
-            className="w-full flex items-center justify-between p-4 text-left hover:bg-[#F6F9FF] transition-colors"
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-background transition-colors"
           >
             <div>
-              <p className="font-semibold text-sm text-[#0B1220]">Alterar senha</p>
-              <p className="text-xs text-[#64748B] mt-0.5">Redefina a senha de acesso</p>
+              <p className="font-semibold text-sm text-acs-ink">Alterar senha</p>
+              <p className="text-xs text-acs-ink-3 mt-0.5">Redefina a senha de acesso</p>
             </div>
-            <span className="text-[#64748B] text-xs font-medium">{senhaAberta ? 'Fechar' : 'Abrir'}</span>
+            <span className="text-acs-ink-3 text-xs font-medium">{senhaAberta ? 'Fechar' : 'Abrir'}</span>
           </button>
 
           {senhaAberta && (
-            <form onSubmit={handleAlterarSenha} noValidate className="px-4 pb-4 space-y-4 border-t border-[#DBEAFE] pt-4">
+            <form onSubmit={handleAlterarSenha} noValidate className="px-4 pb-4 space-y-4 border-t border-acs-line pt-4">
               {erroApiSenha && (
-                <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-3">
-                  <AlertCircle size={16} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-[#FECACA] rounded-xl p-3">
+                  <AlertCircle size={16} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-[#B91C1C]">{erroApiSenha}</p>
                 </div>
               )}
               {sucessoSenha && (
-                <div className="flex items-center gap-3 bg-[#DCFCE7] border border-[#BBF7D0] rounded-xl p-3">
-                  <CheckCircle2 size={16} className="text-[#10B981] flex-shrink-0" />
+                <div className="flex items-center gap-3 bg-acs-verde-100 border border-[#BBF7D0] rounded-xl p-3">
+                  <CheckCircle2 size={16} className="text-acs-verde flex-shrink-0" />
                   <p className="text-xs text-[#065F46] font-medium">Senha alterada com sucesso!</p>
                 </div>
               )}
@@ -418,7 +418,7 @@ export function EditarUsuario() {
                       onChange={(e) => { setSenhaAtual(e.target.value); setErrosSenha((p) => ({ ...p, senhaAtual: undefined })) }}
                       className={`${errosSenha.senhaAtual ? inputErrorClass : inputClass} pr-11`} />
                     <button type="button" onClick={() => setShowAtual((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-acs-ink-3">
                       {showAtual ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
@@ -431,7 +431,7 @@ export function EditarUsuario() {
                     onChange={(e) => { setNovaSenha(e.target.value); setErrosSenha((p) => ({ ...p, novaSenha: undefined })) }}
                     className={`${errosSenha.novaSenha ? inputErrorClass : inputClass} pr-11`} />
                   <button type="button" onClick={() => setShowNova((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-acs-ink-3">
                     {showNova ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
@@ -443,7 +443,7 @@ export function EditarUsuario() {
                     onChange={(e) => { setConfirmarSenha(e.target.value); setErrosSenha((p) => ({ ...p, confirmarSenha: undefined })) }}
                     className={`${errosSenha.confirmarSenha ? inputErrorClass : inputClass} pr-11`} />
                   <button type="button" onClick={() => setShowConfirm((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-acs-ink-3">
                     {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
@@ -463,7 +463,7 @@ export function EditarUsuario() {
           <section className="rounded-xl border border-[#FECACA] overflow-hidden">
             <div className="p-4 bg-[#FFF5F5]">
               <p className="font-semibold text-sm text-[#B91C1C]">Zona de risco</p>
-              <p className="text-xs text-[#64748B] mt-0.5">Ações irreversíveis no cadastro do usuário</p>
+              <p className="text-xs text-acs-ink-3 mt-0.5">Ações irreversíveis no cadastro do usuário</p>
             </div>
 
             <div className="p-4 bg-white">
@@ -471,24 +471,24 @@ export function EditarUsuario() {
                 <button
                   type="button"
                   onClick={() => setConfirmandoDesativar(true)}
-                  className="flex items-center gap-2 text-sm font-medium text-[#EF4444] hover:text-[#B91C1C] transition-colors"
+                  className="flex items-center gap-2 text-sm font-medium text-acs-vermelho hover:text-[#B91C1C] transition-colors"
                 >
                   <UserX size={16} />
                   Desativar usuário
                 </button>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-sm text-[#0B1220]">
+                  <p className="text-sm text-acs-ink">
                     Tem certeza que deseja desativar <strong>{usuario.nome}</strong>?
                     O acesso será bloqueado imediatamente.
                   </p>
                   <div className="flex gap-2">
                     <button type="button" onClick={() => setConfirmandoDesativar(false)} disabled={desativando}
-                      className="flex-1 py-2 rounded-lg border border-[#DBEAFE] text-sm text-[#64748B] font-medium hover:bg-[#F6F9FF] transition-colors disabled:opacity-50">
+                      className="flex-1 py-2 rounded-xl border border-acs-line text-sm text-acs-ink-3 font-medium hover:bg-background transition-colors disabled:opacity-50">
                       Cancelar
                     </button>
                     <button type="button" onClick={handleDesativar} disabled={desativando}
-                      className="flex-1 py-2 rounded-lg bg-[#EF4444] text-white text-sm font-semibold hover:bg-[#DC2626] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                      className="flex-1 py-2 rounded-xl bg-acs-vermelho text-white text-sm font-semibold hover:bg-[#DC2626] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
                       {desativando && <Loader2 size={14} className="animate-spin" />}
                       {desativando ? 'Desativando…' : 'Confirmar desativação'}
                     </button>

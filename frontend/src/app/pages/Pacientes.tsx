@@ -22,7 +22,7 @@ export function Pacientes() {
   const filters: { id: FiltroId; label: string }[] = [
     { id: 'todos',       label: 'Todos' },
     { id: 'alto',        label: 'Alto risco' },
-    { id: 'cronicos',    label: 'Crônicos' },
+    { id: 'cronicos',    label: 'Cronicos' },
     { id: 'gestantes',   label: 'Gestantes' },
     { id: 'sem-visita',  label: 'Sem visita recente' },
   ];
@@ -69,15 +69,6 @@ export function Pacientes() {
     return pacientes;
   }, [pacientes, activeFilter]);
 
-  const getInitialsColor = (risco: 'urgent' | 'warning' | 'low') => {
-    switch (risco) {
-      case 'urgent':  return '#EF4444';
-      case 'warning': return '#F59E0B';
-      case 'low':     return '#10B981';
-      default:        return '#0066CC';
-    }
-  };
-
   const iniciais = (nome: string) =>
     nome.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 
@@ -86,44 +77,43 @@ export function Pacientes() {
     const dias = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000));
     if (dias === 0) return 'hoje';
     if (dias === 1) return 'ontem';
-    return `há ${dias} dias`;
+    return `ha ${dias} dias`;
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F9FF]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-4 lg:px-8 py-4 lg:py-6">
+      <div className="bg-white border-b border-acs-line px-4 lg:px-8 py-4 lg:py-6">
         <div className="max-w-7xl mx-auto">
-          <h2 className="font-bold text-[#0B1220] mb-4 text-lg lg:text-xl">Meus Pacientes</h2>
+          <h2 className="font-display font-bold text-acs-ink mb-4 text-lg lg:text-xl">Meus Pacientes</h2>
 
           {/* Search */}
           <div className="relative max-w-2xl">
-            <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]" />
+            <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-acs-ink-3" />
             <input
               type="text"
               placeholder="Nome, CPF ou CNS..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 lg:py-3 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+              className="w-full pl-10 pr-4 py-2.5 lg:py-3 rounded-xl border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-4 focus:outline-none focus:ring-2 focus:ring-acs-azul"
             />
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white border-b border-[#DBEAFE] px-4 lg:px-8 py-3">
+      <div className="bg-white border-b border-acs-line px-4 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto">
           <div className="flex gap-2 overflow-x-auto hide-scrollbar">
             {filters.map((filter) => (
               <button
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
-                className="px-4 py-1.5 lg:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0"
-                style={{
-                  backgroundColor: activeFilter === filter.id ? '#0066CC' : '#F6F9FF',
-                  color: activeFilter === filter.id ? '#FFFFFF' : '#64748B',
-                  border: activeFilter === filter.id ? 'none' : '1px solid #DBEAFE',
-                }}
+                className={`px-4 py-1.5 lg:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
+                  activeFilter === filter.id
+                    ? 'bg-acs-ink text-acs-paper'
+                    : 'bg-acs-paper-2 text-acs-ink-3 border border-acs-line'
+                }`}
               >
                 {filter.label}
               </button>
@@ -132,23 +122,23 @@ export function Pacientes() {
         </div>
       </div>
 
-      {/* Conteúdo */}
+      {/* Conteudo */}
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
         {loading && (
-          <div className="flex items-center justify-center py-20 text-[#64748B]">
+          <div className="flex items-center justify-center py-20 text-acs-ink-3">
             <Loader2 size={24} className="animate-spin mr-2" />
             Carregando pacientes...
           </div>
         )}
 
         {!loading && erro && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-4">
+          <div className="bg-acs-vermelho-100 border border-acs-vermelho/20 text-acs-vermelho rounded-xl p-4 mb-4">
             {erro}
           </div>
         )}
 
         {!loading && !erro && listaFiltrada.length === 0 && (
-          <div className="text-center py-20 text-[#64748B]">
+          <div className="text-center py-20 text-acs-ink-3">
             Nenhum paciente encontrado.
           </div>
         )}
@@ -165,42 +155,38 @@ export function Pacientes() {
                 <button
                   key={paciente.id}
                   onClick={() => navigate(`/paciente/${paciente.id}`)}
-                  className="w-full bg-white rounded-xl p-4 lg:p-5 border border-[#DBEAFE] hover:border-[#0066CC] hover:shadow-lg transition-all text-left"
-                  style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
+                  className="w-full card-acs p-4 lg:p-5 border border-acs-line hover:border-acs-azul hover:shadow-[0_8px_20px_rgba(10,20,40,.18)] transition-all text-left"
                 >
                   <div className="flex items-start gap-3">
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0"
-                      style={{ backgroundColor: getInitialsColor(risco) }}
-                    >
+                    <div className="w-12 h-12 rounded-full bg-acs-paper-2 flex items-center justify-center text-acs-ink-2 font-semibold flex-shrink-0">
                       {iniciais(paciente.nome)}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="font-semibold text-[#0B1220]">{paciente.nome}</h3>
+                        <h3 className="font-semibold text-acs-ink">{paciente.nome}</h3>
                         {hasAlert && (
-                          <AlertCircle size={16} className="text-[#EF4444] flex-shrink-0" />
+                          <AlertCircle size={16} className="text-acs-vermelho flex-shrink-0" />
                         )}
                       </div>
 
-                      <p className="text-sm text-[#64748B] mb-2">
+                      <p className="text-sm text-acs-ink-3 mb-2">
                         {idade} anos • {paciente.sexo === 'm' ? 'M' : 'F'}
                       </p>
 
-                      <p className="text-sm text-[#64748B] mb-3 truncate">
-                        {endereco || 'Endereço não informado'}
+                      <p className="text-sm text-acs-ink-3 mb-3 truncate">
+                        {endereco || 'Endereco nao informado'}
                       </p>
 
                       <div className="flex items-center justify-between">
                         <RiskBadge level={risco} />
-                        <span className="text-xs text-[#64748B]">
-                          Última visita: {formatUltimaVisita(paciente.data_ultima_visita)}
+                        <span className="text-xs text-acs-ink-3">
+                          Ultima visita: {formatUltimaVisita(paciente.data_ultima_visita)}
                         </span>
                       </div>
                     </div>
 
-                    <ChevronRight size={20} className="text-[#64748B] flex-shrink-0 mt-2" />
+                    <ChevronRight size={20} className="text-acs-ink-4 flex-shrink-0 mt-2" />
                   </div>
                 </button>
               );
@@ -212,9 +198,9 @@ export function Pacientes() {
       {/* FAB */}
       <button
         onClick={() => navigate('/novo-paciente')}
-        className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 w-14 h-14 lg:w-16 lg:h-16 bg-[#0066CC] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#0052A3] hover:scale-110 transition-all z-50"
+        className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 w-14 h-14 rounded-2xl fab-coral flex items-center justify-center hover:brightness-95 hover:scale-110 transition-all z-50"
       >
-        <Plus size={24} strokeWidth={2.5} />
+        <Plus size={24} strokeWidth={2.2} />
       </button>
     </div>
   );

@@ -9,9 +9,9 @@ import type { Comorbidade, TipoVisita } from '@/types';
 const FATORES_RISCO: { id: Comorbidade; label: string }[] = [
   { id: 'fumante',         label: 'Fumante' },
   { id: 'hipertenso',      label: 'Hipertenso(a)' },
-  { id: 'diabetico',       label: 'Diabético(a)' },
+  { id: 'diabetico',       label: 'Diabetico(a)' },
   { id: 'obeso',           label: 'Obeso(a)' },
-  { id: 'asmatico',        label: 'Asmático(a)' },
+  { id: 'asmatico',        label: 'Asmatico(a)' },
   { id: 'gestante',        label: 'Gestante' },
   { id: 'cardiopata',      label: 'Cardiopata' },
   { id: 'dpoc',            label: 'DPOC' },
@@ -22,7 +22,7 @@ const TIPOS_VISITA: { id: TipoVisita; label: string }[] = [
   { id: 'rotina',      label: 'Rotina' },
   { id: 'busca_ativa', label: 'Busca ativa' },
   { id: 'retorno',     label: 'Retorno' },
-  { id: 'urgencia',    label: 'Urgência' },
+  { id: 'urgencia',    label: 'Urgencia' },
 ];
 
 export function TriagemPasso1() {
@@ -37,7 +37,6 @@ export function TriagemPasso1() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro]       = useState<string | null>(null);
 
-  // Primeira entrada: carrega paciente + catálogo e pré-popula fatores de risco com comorbidades
   useEffect(() => {
     if (!pacienteId) return;
     let cancelado = false;
@@ -47,8 +46,6 @@ export function TriagemPasso1() {
       setErro(null);
       try {
         const idNum = Number(pacienteId);
-
-        // Se o paciente carregado é outro, reseta a triagem em andamento
         if (paciente && paciente.id !== idNum) reset();
 
         const [{ data: pac }, { data: cat }] = await Promise.all([
@@ -71,7 +68,6 @@ export function TriagemPasso1() {
 
         if (!catalogo) setCatalogo(cat);
 
-        // Pré-preenche fatores de risco com comorbidades registradas
         if (riskFactors.length === 0 && pac.comorbidades?.length) {
           setRiskFactors(pac.comorbidades as Comorbidade[]);
         }
@@ -91,7 +87,7 @@ export function TriagemPasso1() {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center gap-2 text-[#64748B]">
+      <div className="h-full flex items-center justify-center gap-2 text-acs-ink-3">
         <Loader2 size={20} className="animate-spin" />
         Carregando...
       </div>
@@ -101,12 +97,12 @@ export function TriagemPasso1() {
   if (erro || !paciente) {
     return (
       <div className="h-full flex flex-col p-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#0B1220] mb-6">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-acs-ink mb-6">
           <ArrowLeft size={20} /> Voltar
         </button>
-        <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4">
-          <AlertCircle size={18} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-[#B91C1C]">{erro ?? 'Paciente não encontrado.'}</p>
+        <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-acs-vermelho/20 rounded-xl p-4">
+          <AlertCircle size={18} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-acs-vermelho">{erro ?? 'Paciente nao encontrado.'}</p>
         </div>
       </div>
     );
@@ -115,14 +111,14 @@ export function TriagemPasso1() {
   return (
     <div className="h-full flex flex-col overflow-y-auto pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-6 py-4">
+      <div className="bg-white border-b border-acs-line px-6 py-4">
         <div className="flex items-center gap-3 mb-3">
           <button onClick={() => navigate(-1)}>
-            <ArrowLeft size={24} color="#0B1220" />
+            <ArrowLeft size={24} className="text-acs-ink" />
           </button>
           <div className="min-w-0">
-            <h2 className="font-bold text-[#0B1220]">Nova Triagem</h2>
-            <p className="text-sm text-[#64748B] truncate">
+            <h2 className="font-display font-bold text-acs-ink">Nova Triagem</h2>
+            <p className="text-sm text-acs-ink-3 truncate">
               {paciente.nome} • {paciente.idade} anos • {paciente.sexo === 'm' ? 'Masculino' : 'Feminino'}
             </p>
           </div>
@@ -130,19 +126,19 @@ export function TriagemPasso1() {
 
         {/* Progress */}
         <div className="flex items-center gap-2 mt-4">
-          <div className="flex-1 h-2 bg-[#0066CC] rounded-full" />
-          <div className="flex-1 h-2 bg-[#DBEAFE] rounded-full" />
-          <div className="flex-1 h-2 bg-[#DBEAFE] rounded-full" />
+          <div className="flex-1 h-1.5 bg-acs-azul rounded-full" />
+          <div className="flex-1 h-1.5 bg-acs-paper-2 rounded-full" />
+          <div className="flex-1 h-1.5 bg-acs-paper-2 rounded-full" />
         </div>
-        <p className="text-xs text-[#64748B] mt-2">1 de 3 — Fatores de risco e contexto</p>
+        <p className="eyebrow mt-2">1 de 3 — Fatores de risco e contexto</p>
       </div>
 
       <div className="flex-1 px-6 py-4 space-y-6">
         {/* Fatores de Risco */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-1">Fatores de Risco / Comorbidades</h3>
-          <p className="text-xs text-[#64748B] mb-3">
-            Pré-selecionadas com base no prontuário. Ajuste se necessário.
+          <h3 className="font-display font-semibold text-acs-ink mb-1">Fatores de Risco / Comorbidades</h3>
+          <p className="text-xs text-acs-ink-3 mb-3">
+            Pre-selecionadas com base no prontuario. Ajuste se necessario.
           </p>
           <div className="grid grid-cols-2 gap-2">
             {FATORES_RISCO.map((f) => {
@@ -152,12 +148,11 @@ export function TriagemPasso1() {
                   key={f.id}
                   type="button"
                   onClick={() => toggleRiskFactor(f.id)}
-                  className="px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left"
-                  style={{
-                    backgroundColor: ativo ? '#0066CC' : '#F6F9FF',
-                    color: ativo ? '#FFFFFF' : '#0B1220',
-                    border: ativo ? 'none' : '1px solid #DBEAFE',
-                  }}
+                  className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
+                    ativo
+                      ? 'bg-acs-azul text-white'
+                      : 'bg-white text-acs-ink border border-acs-line'
+                  }`}
                 >
                   {ativo && '✓ '}{f.label}
                 </button>
@@ -168,10 +163,10 @@ export function TriagemPasso1() {
 
         {/* Contexto da Visita */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Contexto da visita</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Contexto da visita</h3>
 
           <div className="mb-4">
-            <label className="text-sm font-medium text-[#0B1220] block mb-2">Tipo de visita</label>
+            <label className="text-sm font-medium text-acs-ink block mb-2">Tipo de visita</label>
             <div className="grid grid-cols-2 gap-2">
               {TIPOS_VISITA.map((t) => {
                 const ativo = tipoVisita === t.id;
@@ -180,12 +175,11 @@ export function TriagemPasso1() {
                     key={t.id}
                     type="button"
                     onClick={() => setTipoVisita(t.id)}
-                    className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-                    style={{
-                      backgroundColor: ativo ? '#0066CC' : 'white',
-                      color: ativo ? '#FFFFFF' : '#0B1220',
-                      border: ativo ? 'none' : '1px solid #DBEAFE',
-                    }}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      ativo
+                        ? 'bg-acs-azul text-white'
+                        : 'bg-white text-acs-ink border border-acs-line'
+                    }`}
                   >
                     {t.label}
                   </button>
@@ -195,12 +189,12 @@ export function TriagemPasso1() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-[#0B1220] block mb-2">Observação</label>
+            <label className="text-sm font-medium text-acs-ink block mb-2">Observacao</label>
             <textarea
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}
-              placeholder="Observações sobre a visita..."
-              className="w-full px-4 py-3 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 resize-none"
+              placeholder="Observacoes sobre a visita..."
+              className="w-full px-4 py-3 rounded-xl border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-4 focus:outline-none focus:ring-2 focus:ring-acs-azul resize-none"
               rows={4}
             />
           </div>
@@ -208,12 +202,12 @@ export function TriagemPasso1() {
       </div>
 
       {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DBEAFE] p-4 max-w-[800px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[800px] mx-auto">
         <button
           onClick={() => navigate(`/triagem/${paciente.id}/passo2`)}
-          className="w-full py-3 bg-[#0066CC] text-white rounded-xl font-semibold hover:bg-[#0052A3] transition-colors"
+          className="w-full py-3 bg-acs-azul text-white rounded-xl font-semibold hover:bg-acs-azul-900 transition-colors"
         >
-          Próximo: Sintomas
+          Proximo: Sintomas
         </button>
       </div>
     </div>

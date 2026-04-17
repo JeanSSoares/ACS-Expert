@@ -49,7 +49,7 @@ export function Perfil() {
 
   if (loading) {
     return (
-      <div className="h-full flex flex-col items-center justify-center gap-3 text-[#64748B]">
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-acs-ink-3">
         <Loader2 size={24} className="animate-spin" />
         Carregando perfil...
       </div>
@@ -59,19 +59,19 @@ export function Perfil() {
   if (erro || !usuario) {
     return (
       <div className="h-full flex flex-col pb-16 overflow-y-auto">
-        <div className="bg-[#0066CC] px-6 py-8 text-center">
-          <h2 className="text-xl font-bold text-white">Perfil</h2>
+        <div className="bg-acs-azul px-6 py-8 text-center">
+          <h2 className="font-display text-xl font-bold text-white">Perfil</h2>
         </div>
         <div className="flex-1 px-6 py-6">
-          <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4">
-            <AlertCircle size={18} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-[#FECACA] rounded-xl p-4">
+            <AlertCircle size={18} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
             <p className="text-sm text-[#B91C1C]">
               {erro ?? 'Você não está autenticado. Faça login novamente.'}
             </p>
           </div>
           <button
             onClick={logout}
-            className="mt-6 w-full bg-white rounded-xl p-4 border border-[#EF4444] flex items-center justify-center gap-2 text-[#EF4444] font-semibold hover:bg-[#FEE2E2] transition-colors"
+            className="mt-6 w-full bg-white rounded-xl p-4 border border-acs-vermelho flex items-center justify-center gap-2 text-acs-vermelho font-semibold hover:bg-acs-vermelho-100 transition-colors"
           >
             <LogOut size={20} />
             Sair
@@ -85,12 +85,12 @@ export function Perfil() {
   return (
     <div className="h-full flex flex-col pb-16 overflow-y-auto">
       {/* Header */}
-      <div className="bg-[#0066CC] px-6 py-8">
+      <div className="bg-acs-azul px-6 py-8">
         <div className="flex flex-col items-center">
-          <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-[#0066CC] font-bold text-3xl mb-4">
+          <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-acs-azul font-bold text-3xl mb-4">
             {iniciais(usuario.nome)}
           </div>
-          <h2 className="text-xl font-bold text-white mb-1">{usuario.nome}</h2>
+          <h2 className="font-display text-xl font-bold text-white mb-1">{usuario.nome}</h2>
           <p className="text-sm text-white/90">
             {PERFIL_LABEL[usuario.perfil] ?? usuario.perfil}
           </p>
@@ -100,23 +100,23 @@ export function Perfil() {
       <div className="flex-1 px-6 py-4 space-y-6 -mt-6">
         {/* Card de informações */}
         <div
-          className="bg-white rounded-xl p-4 border border-[#DBEAFE]"
-          style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
+          className="bg-white rounded-xl p-4 border border-acs-line"
+          style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}
         >
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <IdCard size={20} className="text-[#64748B] flex-shrink-0 mt-0.5" />
+              <IdCard size={20} className="text-acs-ink-3 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs text-[#64748B]">Matrícula</p>
-                <p className="font-medium text-[#0B1220]">{usuario.matricula}</p>
+                <p className="text-xs text-acs-ink-3">Matrícula</p>
+                <p className="font-medium text-acs-ink">{usuario.matricula}</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <ShieldCheck size={20} className="text-[#64748B] flex-shrink-0 mt-0.5" />
+              <ShieldCheck size={20} className="text-acs-ink-3 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs text-[#64748B]">Perfil de acesso</p>
-                <p className="font-medium text-[#0B1220]">
+                <p className="text-xs text-acs-ink-3">Perfil de acesso</p>
+                <p className="font-medium text-acs-ink">
                   {PERFIL_LABEL[usuario.perfil] ?? usuario.perfil}
                   {usuario.ativo ? '' : ' (inativo)'}
                 </p>
@@ -124,30 +124,30 @@ export function Perfil() {
             </div>
 
             <div className="flex items-start gap-3">
-              <Building2 size={20} className="text-[#64748B] flex-shrink-0 mt-0.5" />
+              <Building2 size={20} className="text-acs-ink-3 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs text-[#64748B]">Município</p>
-                <p className="font-medium text-[#0B1220]">
+                <p className="text-xs text-acs-ink-3">Município</p>
+                <p className="font-medium text-acs-ink">
                   {usuario.municipio_nome ?? '—'}
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <MapPin size={20} className="text-[#64748B] flex-shrink-0 mt-0.5" />
+              <MapPin size={20} className="text-acs-ink-3 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs text-[#64748B]">Área de atuação</p>
-                <p className="font-medium text-[#0B1220]">
+                <p className="text-xs text-acs-ink-3">Área de atuação</p>
+                <p className="font-medium text-acs-ink">
                   {usuario.microarea_nome ?? 'Sem microárea vinculada'}
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <Mail size={20} className="text-[#64748B] flex-shrink-0 mt-0.5" />
+              <Mail size={20} className="text-acs-ink-3 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs text-[#64748B]">E-mail</p>
-                <p className="font-medium text-[#0B1220]">
+                <p className="text-xs text-acs-ink-3">E-mail</p>
+                <p className="font-medium text-acs-ink">
                   {usuario.email ?? 'Não informado'}
                 </p>
               </div>
@@ -157,30 +157,30 @@ export function Perfil() {
 
         {/* Último acesso */}
         {usuario.ultimo_acesso && (
-          <p className="text-xs text-[#64748B] text-center">
+          <p className="text-xs text-acs-ink-3 text-center">
             Último acesso: {formatarData(usuario.ultimo_acesso)}
           </p>
         )}
 
         {/* Configurações */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Configurações</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Configurações</h3>
           <div className="space-y-2">
-            <button className="w-full bg-white rounded-xl p-4 border border-[#DBEAFE] flex items-center justify-between hover:bg-[#F6F9FF] transition-colors">
-              <span className="text-sm font-medium text-[#0B1220]">Editar perfil</span>
-              <span className="text-[#64748B]">›</span>
+            <button className="w-full bg-white rounded-xl p-4 border border-acs-line flex items-center justify-between hover:bg-background transition-colors">
+              <span className="text-sm font-medium text-acs-ink">Editar perfil</span>
+              <span className="text-acs-ink-3">›</span>
             </button>
-            <button className="w-full bg-white rounded-xl p-4 border border-[#DBEAFE] flex items-center justify-between hover:bg-[#F6F9FF] transition-colors">
-              <span className="text-sm font-medium text-[#0B1220]">Alterar senha</span>
-              <span className="text-[#64748B]">›</span>
+            <button className="w-full bg-white rounded-xl p-4 border border-acs-line flex items-center justify-between hover:bg-background transition-colors">
+              <span className="text-sm font-medium text-acs-ink">Alterar senha</span>
+              <span className="text-acs-ink-3">›</span>
             </button>
-            <button className="w-full bg-white rounded-xl p-4 border border-[#DBEAFE] flex items-center justify-between hover:bg-[#F6F9FF] transition-colors">
-              <span className="text-sm font-medium text-[#0B1220]">Notificações</span>
-              <span className="text-[#64748B]">›</span>
+            <button className="w-full bg-white rounded-xl p-4 border border-acs-line flex items-center justify-between hover:bg-background transition-colors">
+              <span className="text-sm font-medium text-acs-ink">Notificações</span>
+              <span className="text-acs-ink-3">›</span>
             </button>
-            <button className="w-full bg-white rounded-xl p-4 border border-[#DBEAFE] flex items-center justify-between hover:bg-[#F6F9FF] transition-colors">
-              <span className="text-sm font-medium text-[#0B1220]">Ajuda e suporte</span>
-              <span className="text-[#64748B]">›</span>
+            <button className="w-full bg-white rounded-xl p-4 border border-acs-line flex items-center justify-between hover:bg-background transition-colors">
+              <span className="text-sm font-medium text-acs-ink">Ajuda e suporte</span>
+              <span className="text-acs-ink-3">›</span>
             </button>
           </div>
         </div>
@@ -188,7 +188,7 @@ export function Perfil() {
         {/* Sair */}
         <button
           onClick={logout}
-          className="w-full bg-white rounded-xl p-4 border border-[#EF4444] flex items-center justify-center gap-2 text-[#EF4444] font-semibold hover:bg-[#FEE2E2] transition-colors"
+          className="w-full bg-white rounded-xl p-4 border border-acs-vermelho flex items-center justify-center gap-2 text-acs-vermelho font-semibold hover:bg-acs-vermelho-100 transition-colors"
         >
           <LogOut size={20} />
           Sair

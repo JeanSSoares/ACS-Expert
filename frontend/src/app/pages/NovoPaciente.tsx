@@ -123,9 +123,9 @@ export function NovoPaciente() {
       onClick={() => setSexo(val)}
       className="flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors"
       style={{
-        backgroundColor: sexo === val ? '#0066CC' : 'white',
-        color: sexo === val ? '#FFFFFF' : '#0B1220',
-        border: sexo === val ? 'none' : '1px solid #DBEAFE',
+        backgroundColor: sexo === val ? 'var(--acs-azul)' : 'white',
+        color: sexo === val ? '#FFFFFF' : 'var(--acs-ink)',
+        border: sexo === val ? 'none' : '1px solid var(--acs-line)',
       }}
     >
       {label}
@@ -135,12 +135,12 @@ export function NovoPaciente() {
   return (
     <div className="h-full flex flex-col overflow-y-auto pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-6 py-4">
+      <div className="bg-white border-b border-acs-line px-6 py-4">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)}>
-            <ArrowLeft size={24} color="#0B1220" />
+            <ArrowLeft size={24} className="text-acs-ink" />
           </button>
-          <h2 className="font-bold text-[#0B1220]">Novo Paciente</h2>
+          <h2 className="font-display font-bold text-acs-ink">Novo Paciente</h2>
         </div>
       </div>
 
@@ -154,58 +154,58 @@ export function NovoPaciente() {
       <div className="flex-1 px-6 py-4 space-y-6">
         {/* Identificação */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Identificação</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Identificação</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">
-                Nome completo <span className="text-[#EF4444]">*</span>
+              <label className="text-sm font-medium text-acs-ink block mb-2">
+                Nome completo <span className="text-acs-vermelho">*</span>
               </label>
               <input
                 type="text"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="Digite o nome completo"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">CPF</label>
+              <label className="text-sm font-medium text-acs-ink block mb-2">CPF</label>
               <input
                 type="text"
                 value={cpf}
                 onChange={(e) => setCpf(e.target.value)}
                 placeholder="000.000.000-00"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">CNS (Cartão Nacional de Saúde)</label>
+              <label className="text-sm font-medium text-acs-ink block mb-2">CNS (Cartão Nacional de Saúde)</label>
               <input
                 type="text"
                 value={cns}
                 onChange={(e) => setCns(e.target.value)}
                 placeholder="000 0000 0000 0000"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">
-                Data de nascimento <span className="text-[#EF4444]">*</span>
+              <label className="text-sm font-medium text-acs-ink block mb-2">
+                Data de nascimento <span className="text-acs-vermelho">*</span>
               </label>
               <input
                 type="date"
                 value={dataNascimento}
                 onChange={(e) => setDataNascimento(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">
-                Sexo <span className="text-[#EF4444]">*</span>
+              <label className="text-sm font-medium text-acs-ink block mb-2">
+                Sexo <span className="text-acs-vermelho">*</span>
               </label>
               <div className="flex gap-3">
                 {sexoButton('m', 'Masculino')}
@@ -217,70 +217,70 @@ export function NovoPaciente() {
 
         {/* Localização */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Localização</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Localização</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">Logradouro</label>
+              <label className="text-sm font-medium text-acs-ink block mb-2">Logradouro</label>
               <input
                 type="text"
                 value={logradouro}
                 onChange={(e) => setLogradouro(e.target.value)}
                 placeholder="Ex: Rua das Flores"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium text-[#0B1220] block mb-2">Número</label>
+                <label className="text-sm font-medium text-acs-ink block mb-2">Número</label>
                 <input
                   type="text"
                   value={numero}
                   onChange={(e) => setNumero(e.target.value)}
                   placeholder="123"
-                  className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                  className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#0B1220] block mb-2">CEP</label>
+                <label className="text-sm font-medium text-acs-ink block mb-2">CEP</label>
                 <input
                   type="text"
                   value={cep}
                   onChange={(e) => setCep(e.target.value)}
                   placeholder="00000-000"
-                  className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                  className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">Bairro</label>
+              <label className="text-sm font-medium text-acs-ink block mb-2">Bairro</label>
               <input
                 type="text"
                 value={bairro}
                 onChange={(e) => setBairro(e.target.value)}
                 placeholder="Ex: Centro"
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">Complemento</label>
+              <label className="text-sm font-medium text-acs-ink block mb-2">Complemento</label>
               <input
                 type="text"
                 value={complemento}
                 onChange={(e) => setComplemento(e.target.value)}
                 placeholder="Apto, bloco, etc."
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">Microárea</label>
+              <label className="text-sm font-medium text-acs-ink block mb-2">Microárea</label>
               <select
                 value={microareaId}
                 onChange={(e) => setMicroareaId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
               >
                 <option value="">Selecione...</option>
                 {microareas.map((m) => (
@@ -290,12 +290,12 @@ export function NovoPaciente() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B1220] block mb-2">Referência de localização</label>
+              <label className="text-sm font-medium text-acs-ink block mb-2">Referência de localização</label>
               <textarea
                 value={nomeReferencia}
                 onChange={(e) => setNomeReferencia(e.target.value)}
                 placeholder="Ex: Próximo ao mercado, casa azul..."
-                className="w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 resize-none"
+                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20 resize-none"
                 rows={2}
               />
             </div>
@@ -304,7 +304,7 @@ export function NovoPaciente() {
 
         {/* Contexto Social */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Contexto Social</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Contexto Social</h3>
           <div className="space-y-2">
             {[
               { checked: idosoMoraSozinho,       set: setIdosoMoraSozinho,       label: 'Idoso que mora sozinho' },
@@ -312,14 +312,14 @@ export function NovoPaciente() {
               { checked: dificuldadeLocomocao,   set: setDificuldadeLocomocao,   label: 'Dificuldade de locomoção' },
               { checked: beneficioSocial,        set: setBeneficioSocial,        label: 'Beneficiário de programa social' },
             ].map((item) => (
-              <label key={item.label} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#DBEAFE] cursor-pointer">
+              <label key={item.label} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-acs-line cursor-pointer">
                 <input
                   type="checkbox"
                   checked={item.checked}
                   onChange={(e) => item.set(e.target.checked)}
-                  className="w-4 h-4 text-[#0066CC] rounded border-[#DBEAFE] focus:ring-[#0066CC]"
+                  className="w-4 h-4 text-acs-azul rounded border-acs-line focus:ring-acs-azul"
                 />
-                <span className="text-sm text-[#0B1220]">{item.label}</span>
+                <span className="text-sm text-acs-ink">{item.label}</span>
               </label>
             ))}
           </div>
@@ -327,7 +327,7 @@ export function NovoPaciente() {
 
         {/* Comorbidades */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Comorbidades</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Comorbidades</h3>
           <div className="flex flex-wrap gap-2">
             {COMORBIDADES.map((c) => {
               const selecionado = comorbidadesSel.has(c.id);
@@ -338,9 +338,9 @@ export function NovoPaciente() {
                   onClick={() => toggleComorbidade(c.id)}
                   className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
                   style={{
-                    backgroundColor: selecionado ? '#0066CC' : 'white',
-                    color: selecionado ? '#FFFFFF' : '#0B1220',
-                    border: selecionado ? 'none' : '1px solid #DBEAFE',
+                    backgroundColor: selecionado ? 'var(--acs-azul)' : 'white',
+                    color: selecionado ? '#FFFFFF' : 'var(--acs-ink)',
+                    border: selecionado ? 'none' : '1px solid var(--acs-line)',
                   }}
                 >
                   {c.label}
@@ -352,19 +352,19 @@ export function NovoPaciente() {
       </div>
 
       {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DBEAFE] p-4 max-w-[390px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[390px] mx-auto">
         <div className="flex gap-3">
           <button
             onClick={() => navigate(-1)}
             disabled={salvando}
-            className="px-6 py-3 text-[#64748B] font-semibold disabled:opacity-50"
+            className="px-6 py-3 text-acs-ink-3 font-semibold disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             onClick={handleSalvar}
             disabled={salvando}
-            className="flex-1 py-3 bg-[#0066CC] text-white rounded-xl font-semibold hover:bg-[#0052A3] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-acs-azul text-white rounded-xl font-semibold hover:bg-acs-azul-900 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
           >
             {salvando && <Loader2 size={18} className="animate-spin" />}
             {salvando ? 'Salvando...' : 'Salvar Paciente'}

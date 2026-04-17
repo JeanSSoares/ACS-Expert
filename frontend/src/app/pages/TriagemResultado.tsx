@@ -22,11 +22,10 @@ export function TriagemResultado() {
   const [erro, setErro]           = useState<string | null>(null);
   const [sucesso, setSucesso]     = useState(false);
 
-  // Avalia (preview) automaticamente ao entrar
   useEffect(() => {
     if (!paciente) return;
     if (Object.keys(sintomas).length === 0) return;
-    if (resultado) return; // já tem resultado em memória
+    if (resultado) return;
 
     let cancelado = false;
     async function avaliar() {
@@ -57,12 +56,12 @@ export function TriagemResultado() {
   if (!paciente) {
     return (
       <div className="h-full flex flex-col p-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#0B1220] mb-6">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-acs-ink mb-6">
           <ArrowLeft size={20} /> Voltar
         </button>
-        <div className="flex items-start gap-3 bg-[#FEF3C7] border border-[#FCD34D] rounded-xl p-4">
-          <AlertCircle size={18} className="text-[#92400E] flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-[#92400E]">Triagem não iniciada.</p>
+        <div className="flex items-start gap-3 bg-acs-amar-100 border border-acs-amar/20 rounded-xl p-4">
+          <AlertCircle size={18} className="text-[#A3740A] flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-[#A3740A]">Triagem nao iniciada.</p>
         </div>
       </div>
     );
@@ -84,7 +83,6 @@ export function TriagemResultado() {
         },
       });
       setSucesso(true);
-      // dá um respiro pro usuário ver o sucesso, depois volta pra perfil
       setTimeout(() => {
         reset();
         navigate(`/paciente/${paciente.id}`);
@@ -103,21 +101,21 @@ export function TriagemResultado() {
   if (sucesso) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 px-6">
-        <div className="w-16 h-16 rounded-full bg-[#DCFCE7] flex items-center justify-center">
-          <CheckCircle2 size={32} className="text-[#10B981]" />
+        <div className="w-16 h-16 rounded-full bg-acs-verde-100 flex items-center justify-center">
+          <CheckCircle2 size={32} className="text-acs-verde" />
         </div>
-        <h2 className="font-bold text-[#0B1220] text-lg text-center">Triagem salva com sucesso!</h2>
-        <p className="text-sm text-[#64748B] text-center">Redirecionando...</p>
+        <h2 className="font-display font-bold text-acs-ink text-lg text-center">Triagem salva com sucesso!</h2>
+        <p className="text-sm text-acs-ink-3 text-center">Redirecionando...</p>
       </div>
     );
   }
 
   if (avaliando || !resultado) {
     return (
-      <div className="h-full flex flex-col items-center justify-center gap-3 text-[#64748B]">
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-acs-ink-3">
         <Loader2 size={24} className="animate-spin" />
         {erro ? (
-          <p className="text-[#EF4444] text-sm px-6 text-center">{erro}</p>
+          <p className="text-acs-vermelho text-sm px-6 text-center">{erro}</p>
         ) : (
           <p className="text-sm">Avaliando sintomas...</p>
         )}
@@ -132,107 +130,99 @@ export function TriagemResultado() {
   const topList  = resultado.computed.slice(0, 8);
 
   const paleta = {
-    danger:  { bg: 'from-[#FEE2E2] to-[#FEF3C7]', border: '#EF4444', text: '#991B1B', iconColor: '#EF4444' },
-    warning: { bg: 'from-[#FEF3C7] to-[#FEF9C3]', border: '#F59E0B', text: '#92400E', iconColor: '#F59E0B' },
-    info:    { bg: 'from-[#DCFCE7] to-[#D1FAE5]', border: '#10B981', text: '#065F46', iconColor: '#10B981' },
+    danger:  { bg: 'bg-acs-vermelho',  text: 'text-white', iconColor: '#fff' },
+    warning: { bg: 'bg-acs-amar',      text: 'text-white', iconColor: '#fff' },
+    info:    { bg: 'bg-acs-verde',     text: 'text-white', iconColor: '#fff' },
   }[corPrio];
 
   return (
     <div className="h-full flex flex-col overflow-y-auto pb-24">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-6 py-4">
+      <div className="bg-white border-b border-acs-line px-6 py-4">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)}>
-            <ArrowLeft size={24} color="#0B1220" />
+            <ArrowLeft size={24} className="text-acs-ink" />
           </button>
           <div className="min-w-0">
-            <h2 className="font-bold text-[#0B1220]">Resultado da Triagem</h2>
-            <p className="text-sm text-[#64748B] truncate">
+            <h2 className="font-display font-bold text-acs-ink">Resultado da Triagem</h2>
+            <p className="text-sm text-acs-ink-3 truncate">
               {paciente.nome} • {new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 mt-4">
-          <div className="flex-1 h-2 bg-[#0066CC] rounded-full" />
-          <div className="flex-1 h-2 bg-[#0066CC] rounded-full" />
-          <div className="flex-1 h-2 bg-[#0066CC] rounded-full" />
+          <div className="flex-1 h-1.5 bg-acs-azul rounded-full" />
+          <div className="flex-1 h-1.5 bg-acs-azul rounded-full" />
+          <div className="flex-1 h-1.5 bg-acs-azul rounded-full" />
         </div>
-        <p className="text-xs text-[#64748B] mt-2">3 de 3 — Resultado</p>
+        <p className="eyebrow mt-2">3 de 3 — Resultado</p>
       </div>
 
       <div className="flex-1 px-6 py-4 space-y-6">
         {erro && (
-          <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4">
-            <AlertCircle size={18} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-[#B91C1C]">{erro}</p>
+          <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-acs-vermelho/20 rounded-xl p-4">
+            <AlertCircle size={18} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-acs-vermelho">{erro}</p>
           </div>
         )}
 
         {/* Card de prioridade */}
-        <div
-          className={`bg-gradient-to-br ${paleta.bg} rounded-xl p-6 border-2`}
-          style={{ borderColor: paleta.border, boxShadow: `0 6px 18px ${paleta.border}40` }}
-        >
+        <div className={`${paleta.bg} rounded-[22px] p-5`}>
+          <div className="mb-3">
+            <span className="inline-block px-2.5 py-1 rounded-md bg-black/20 font-mono text-[10px] font-semibold uppercase tracking-[.1em] text-white">
+              {pLabel}
+            </span>
+          </div>
           <div className="flex items-start gap-3">
             <Activity size={32} style={{ color: paleta.iconColor }} className="flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="text-xl font-bold" style={{ color: paleta.text }}>{pLabel}</h3>
-              <p className="text-sm mt-2" style={{ color: paleta.text }}>{aLabel}</p>
+              <h3 className={`text-[30px] font-display font-semibold leading-tight ${paleta.text}`}>{pLabel}</h3>
+              <p className={`text-sm mt-2 ${paleta.text} opacity-90`}>{aLabel}</p>
               {resultado.top_doenca && (
-                <p className="text-xs mt-2 opacity-80" style={{ color: paleta.text }}>
-                  Hipótese principal: <strong>{resultado.top_doenca.nome}</strong> ({resultado.top_doenca.score}%)
+                <p className={`text-xs mt-2 opacity-80 ${paleta.text}`}>
+                  Hipotese principal: <strong>{resultado.top_doenca.nome}</strong> ({resultado.top_doenca.score}%)
                 </p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Condições mais prováveis */}
+        {/* Condicoes mais provaveis */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Condições mais prováveis</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Condicoes mais provaveis</h3>
           {topList.length === 0 ? (
-            <p className="text-sm text-[#64748B]">Nenhuma condição com probabilidade significativa.</p>
+            <p className="text-sm text-acs-ink-3">Nenhuma condicao com probabilidade significativa.</p>
           ) : (
             <div className="space-y-3">
               {topList.map((d) => {
                 const color =
-                  d.score >= 65 ? '#EF4444' :
-                  d.score >= 35 ? '#F59E0B' : '#10B981';
-                const badge =
-                  d.label === 'Alta'  ? { bg: '#FEE2E2', text: '#991B1B' } :
-                  d.label === 'Média' ? { bg: '#FEF3C7', text: '#92400E' } :
-                                        { bg: '#D1FAE5', text: '#065F46' };
+                  d.score >= 65 ? 'bg-acs-vermelho' :
+                  d.score >= 35 ? 'bg-acs-amar' : 'bg-acs-verde';
 
                 return (
                   <div
                     key={d.id}
-                    className="bg-white rounded-xl p-4 border border-[#DBEAFE]"
-                    style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
+                    className="card-acs p-4 border border-acs-line"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="min-w-0">
-                        <h4 className="font-semibold text-[#0B1220] truncate">{d.nome}</h4>
+                        <h4 className="font-semibold text-acs-ink truncate">{d.nome}</h4>
                         {d.descricao && (
-                          <p className="text-xs text-[#64748B] mt-1 line-clamp-2">{d.descricao}</p>
+                          <p className="text-xs text-acs-ink-3 mt-1 line-clamp-2">{d.descricao}</p>
                         )}
                       </div>
-                      <span
-                        className="px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
-                        style={{ backgroundColor: badge.bg, color: badge.text }}
-                      >
-                        {d.label}
-                      </span>
+                      <RiskBadgeInline label={d.label} />
                     </div>
 
                     <div className="mt-3">
-                      <div className="w-full bg-[#DBEAFE] rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-acs-paper-2 rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all"
-                          style={{ width: `${d.score}%`, backgroundColor: color }}
+                          className={`h-full rounded-full transition-all ${color}`}
+                          style={{ width: `${d.score}%` }}
                         />
                       </div>
-                      <p className="text-xs text-[#64748B] mt-1">{d.score}% de compatibilidade</p>
+                      <p className="text-xs text-acs-ink-3 mt-1 font-mono">{d.score}% de compatibilidade</p>
                     </div>
                   </div>
                 );
@@ -243,36 +233,33 @@ export function TriagemResultado() {
 
         {/* Resumo do contexto */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Resumo da triagem</h3>
-          <div
-            className="bg-white rounded-xl p-4 border border-[#DBEAFE] space-y-2 text-sm"
-            style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
-          >
-            <p><span className="text-[#64748B]">Tipo de visita: </span><span className="font-medium text-[#0B1220]">{tipoVisita}</span></p>
-            <p><span className="text-[#64748B]">Faixa etária: </span><span className="font-medium text-[#0B1220]">{paciente.faixaEtaria}</span></p>
-            <p><span className="text-[#64748B]">Sintomas marcados: </span><span className="font-medium text-[#0B1220]">{Object.keys(sintomas).length}</span></p>
-            <p><span className="text-[#64748B]">Fatores de risco: </span><span className="font-medium text-[#0B1220]">{riskFactors.length > 0 ? riskFactors.join(', ') : 'nenhum'}</span></p>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Resumo da triagem</h3>
+          <div className="card-acs p-4 border border-acs-line space-y-2 text-sm">
+            <p><span className="text-acs-ink-3">Tipo de visita: </span><span className="font-medium text-acs-ink">{tipoVisita}</span></p>
+            <p><span className="text-acs-ink-3">Faixa etaria: </span><span className="font-medium text-acs-ink">{paciente.faixaEtaria}</span></p>
+            <p><span className="text-acs-ink-3">Sintomas marcados: </span><span className="font-medium text-acs-ink">{Object.keys(sintomas).length}</span></p>
+            <p><span className="text-acs-ink-3">Fatores de risco: </span><span className="font-medium text-acs-ink">{riskFactors.length > 0 ? riskFactors.join(', ') : 'nenhum'}</span></p>
             {observacao && (
-              <p><span className="text-[#64748B]">Observação: </span><span className="text-[#0B1220]">{observacao}</span></p>
+              <p><span className="text-acs-ink-3">Observacao: </span><span className="text-acs-ink">{observacao}</span></p>
             )}
           </div>
         </div>
       </div>
 
       {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DBEAFE] p-4 max-w-[800px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[800px] mx-auto">
         <div className="flex gap-3">
           <button
             onClick={() => navigate(`/triagem/${paciente.id}/passo2`)}
             disabled={salvando}
-            className="flex-1 py-3 bg-white text-[#0066CC] rounded-xl font-semibold border-2 border-[#0066CC] hover:bg-[#F6F9FF] transition-colors disabled:opacity-50"
+            className="flex-1 py-3 bg-white text-acs-azul rounded-xl font-semibold border border-acs-azul hover:bg-acs-azul-050 transition-colors disabled:opacity-50"
           >
             Editar sintomas
           </button>
           <button
             onClick={handleSalvar}
             disabled={salvando}
-            className="flex-1 py-3 bg-[#0066CC] text-white rounded-xl font-semibold hover:bg-[#0052A3] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-acs-coral text-white rounded-xl font-semibold hover:brightness-95 transition-colors disabled:opacity-70 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(231,111,74,.3)]"
           >
             {salvando && <Loader2 size={18} className="animate-spin" />}
             {salvando ? 'Salvando...' : 'Salvar Triagem'}
@@ -280,5 +267,17 @@ export function TriagemResultado() {
         </div>
       </div>
     </div>
+  );
+}
+
+function RiskBadgeInline({ label }: { label: string }) {
+  const cfg =
+    label === 'Alta'  ? 'bg-acs-vermelho-100 text-acs-vermelho' :
+    label === 'Media' || label === 'Média' ? 'bg-acs-amar-100 text-[#A3740A]' :
+                         'bg-acs-verde-100 text-[#1E6B48]';
+  return (
+    <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-semibold uppercase tracking-[.1em] flex-shrink-0 ${cfg}`}>
+      {label}
+    </span>
   );
 }

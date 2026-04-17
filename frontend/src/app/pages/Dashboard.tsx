@@ -18,7 +18,7 @@ function iniciais(nome?: string) {
 }
 
 const PERFIL_LABEL: Record<string, string> = {
-  acs:         'Agente Comunitário de Saúde',
+  acs:         'Agente Comunitario de Saude',
   coordenador: 'Coordenador',
   gestor:      'Gestor',
 };
@@ -33,7 +33,7 @@ export function Dashboard() {
     let cancelado = false;
     usuariosService.buscarPorId(usuarioAuth.id)
       .then(({ data }) => { if (!cancelado) setUsuario(data); })
-      .catch(() => {/* mantém fallback do store */});
+      .catch(() => {/* mantem fallback do store */});
     return () => { cancelado = true; };
   }, [usuarioAuth?.id]);
 
@@ -46,18 +46,18 @@ export function Dashboard() {
     {
       id: 1,
       patient: 'Maria Silva',
-      message: 'Alto risco, sem visita há 12 dias',
+      message: 'Alto risco, sem visita ha 12 dias',
       level: 'urgent' as const
     },
     {
       id: 2,
-      patient: 'João Pereira',
-      message: 'Encaminhamento pendente há 5 dias',
+      patient: 'Joao Pereira',
+      message: 'Encaminhamento pendente ha 5 dias',
       level: 'warning' as const
     },
     {
       id: 3,
-      patient: 'Família Souza',
+      patient: 'Familia Souza',
       message: '3 membros em risco moderado',
       level: 'warning' as const
     }
@@ -71,23 +71,23 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F6F9FF]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-4 lg:px-8 py-4 lg:py-6">
+      <div className="bg-white border-b border-acs-line px-4 lg:px-8 py-4 lg:py-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#0066CC] flex items-center justify-center text-white font-semibold">
+              <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-acs-azul flex items-center justify-center text-white font-semibold">
                 {iniciais(nome)}
               </div>
               <div>
-                <h2 className="font-bold text-[#0B1220] text-lg lg:text-xl">{saudacao(nome)}</h2>
-                {subtitulo && <p className="text-sm text-[#64748B]">{subtitulo}</p>}
+                <h2 className="font-display font-bold text-acs-ink text-lg lg:text-xl">{saudacao(nome)}</h2>
+                {subtitulo && <p className="text-sm text-acs-ink-3">{subtitulo}</p>}
               </div>
             </div>
             <button className="relative lg:hidden" onClick={() => navigate('/alertas')}>
-              <Bell size={24} color="#64748B" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#EF4444] text-white text-xs rounded-full flex items-center justify-center">
+              <Bell size={24} className="text-acs-ink-3" />
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-acs-vermelho text-white text-xs rounded-full flex items-center justify-center">
                 7
               </span>
             </button>
@@ -100,33 +100,33 @@ export function Dashboard() {
           {/* Coluna Principal */}
           <div className="lg:col-span-2 space-y-6">
             {/* Agenda do dia */}
-            <div className="bg-[#0066CC] rounded-xl p-6 shadow-md">
-              <h3 className="font-semibold text-white mb-4 text-lg">Agenda de hoje</h3>
+            <div className="bg-acs-azul rounded-2xl p-6 shadow-[0_1px_2px_rgba(10,20,40,.06)]">
+              <h3 className="font-display font-semibold text-white mb-4 text-lg">Agenda de hoje</h3>
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white">8</div>
+                  <div className="text-3xl font-display font-bold text-white">8</div>
                   <div className="text-sm text-white/80">Planejadas</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white">3</div>
+                  <div className="text-3xl font-display font-bold text-white">3</div>
                   <div className="text-sm text-white/80">Realizadas</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white">2</div>
+                  <div className="text-3xl font-display font-bold text-white">2</div>
                   <div className="text-sm text-white/80">Urgentes</div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => navigate('/agenda')}
-                className="w-full py-3 bg-white/20 backdrop-blur text-white rounded-lg font-medium hover:bg-white/30 transition-colors"
+                className="w-full py-3 bg-white/20 backdrop-blur text-white rounded-xl font-medium hover:bg-white/30 transition-colors"
               >
                 Ver agenda completa
               </button>
             </div>
 
-            {/* Ações rápidas */}
+            {/* Acoes rapidas */}
             <div>
-              <h3 className="font-semibold text-[#0B1220] mb-4 text-lg">Ações rápidas</h3>
+              <h3 className="font-display font-semibold text-acs-ink mb-4 text-lg">Acoes rapidas</h3>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                 {quickActions.map((action) => {
                   const Icon = action.icon;
@@ -134,11 +134,10 @@ export function Dashboard() {
                     <button
                       key={action.label}
                       onClick={() => navigate(action.path)}
-                      className="bg-white rounded-xl p-4 lg:p-6 flex flex-col items-center gap-3 border border-[#DBEAFE] hover:border-[#0066CC] hover:shadow-lg transition-all"
-                      style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
+                      className="card-acs p-4 lg:p-6 flex flex-col items-center gap-3 border border-acs-line hover:border-acs-azul hover:shadow-[0_8px_20px_rgba(10,20,40,.18)] transition-all"
                     >
-                      <Icon size={28} color="#0066CC" strokeWidth={2} />
-                      <span className="text-sm font-medium text-[#0B1220] text-center">{action.label}</span>
+                      <Icon size={28} className="text-acs-azul" strokeWidth={1.8} />
+                      <span className="text-sm font-medium text-acs-ink text-center">{action.label}</span>
                     </button>
                   );
                 })}
@@ -148,10 +147,10 @@ export function Dashboard() {
 
           {/* Coluna Lateral - Alertas */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl p-6 border border-[#DBEAFE] shadow-sm">
+            <div className="card-acs p-6 border border-acs-line">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[#0B1220] text-lg">Alertas</h3>
-                <span className="w-6 h-6 bg-[#EF4444] text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                <h3 className="font-display font-semibold text-acs-ink text-lg">Alertas</h3>
+                <span className="w-6 h-6 bg-acs-vermelho text-white text-xs rounded-full flex items-center justify-center font-semibold">
                   7
                 </span>
               </div>
@@ -159,21 +158,22 @@ export function Dashboard() {
                 {alerts.map((alert) => (
                   <div
                     key={alert.id}
-                    className="bg-[#F6F9FF] rounded-lg p-3 border-l-4"
-                    style={{
-                      borderLeftColor: alert.level === 'urgent' ? '#EF4444' : '#F59E0B'
-                    }}
+                    className={`bg-white rounded-xl p-3.5 flex items-start gap-3 border-l-[3px] ${
+                      alert.level === 'urgent' ? 'border-l-acs-vermelho' : 'border-l-acs-amar'
+                    }`}
                   >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <p className="font-semibold text-[#0B1220] text-sm">{alert.patient}</p>
-                      <RiskBadge level={alert.level} />
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <p className="font-semibold text-acs-ink text-sm">{alert.patient}</p>
+                        <RiskBadge level={alert.level} />
+                      </div>
+                      <p className="text-xs text-acs-ink-3">{alert.message}</p>
                     </div>
-                    <p className="text-xs text-[#64748B]">{alert.message}</p>
                   </div>
                 ))}
               </div>
-              <button 
-                className="w-full text-sm text-[#0066CC] font-medium mt-4 py-2 hover:bg-[#F0F9FF] rounded-lg transition-colors" 
+              <button
+                className="w-full text-sm text-acs-azul font-medium mt-4 py-2 hover:bg-acs-azul-050 rounded-xl transition-colors"
                 onClick={() => navigate('/alertas')}
               >
                 Ver todos os alertas →

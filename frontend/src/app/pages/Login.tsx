@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Wifi, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import logo from '@/assets/logo.png';
+import { Logo } from '@/app/components/brand/Logo';
 
 export function Login() {
   const { login } = useAuth();
@@ -36,18 +36,13 @@ export function Login() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left side - Branding (Desktop only) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0066CC] to-[#0052A3] p-12 items-center justify-center">
+      <div className="hidden lg:flex lg:w-1/2 bg-acs-azul p-12 items-center justify-center">
         <div className="max-w-md text-white">
           <div className="mb-6">
-            <img
-              src={logo}
-              alt="ACS-Expert"
-              className="w-32 h-32 rounded-full object-cover bg-white shadow-lg"
-            />
+            <Logo variant="full" size={64} color="#FFFFFF" accent="#E76F4A" muted="rgba(255,255,255,0.7)" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">ACS-Expert</h1>
-          <p className="text-xl text-white/90 mb-8">
-            Assistente inteligente para triagem domiciliar
+          <p className="text-xl text-white/90 mb-8 font-display">
+            Cuidado <em>que anda junto.</em>
           </p>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
@@ -82,35 +77,28 @@ export function Login() {
       </div>
 
       {/* Right side - Login form */}
-      <div className="flex-1 flex flex-col" style={{
-        background: 'linear-gradient(180deg, #0066CC 0%, #FFFFFF 100%)'
-      }}>
+      <div className="flex-1 flex flex-col bg-acs-paper">
         <div className="flex-1 flex flex-col items-center justify-center px-8 py-16">
           {/* Logo - Mobile only */}
           <div className="flex flex-col items-center mb-8 lg:hidden">
             <div className="mb-4">
-              <img
-                src={logo}
-                alt="ACS-Expert"
-                className="w-24 h-24 rounded-full object-cover bg-white shadow-lg"
-              />
+              <Logo variant="full" size={48} />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">ACS-Expert</h1>
-            <p className="text-sm text-white/90 text-center">
-              Assistente inteligente para triagem domiciliar
+            <p className="text-sm text-acs-ink-3 text-center font-display">
+              Cuidado <em>que anda junto.</em>
             </p>
           </div>
 
           {/* Welcome text - Desktop */}
           <div className="hidden lg:block mb-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-2">Bem-vindo de volta</h2>
-            <p className="text-white/90">Faça login para continuar</p>
+            <h2 className="text-3xl font-bold text-acs-ink mb-2 font-display">Bem-vindo de volta</h2>
+            <p className="text-acs-ink-3">Faca login para continuar</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleLogin} className="w-full max-w-md space-y-4 mt-8">
             {erro && (
-              <div className="flex items-center gap-2 bg-white/20 backdrop-blur rounded-xl px-4 py-3 text-white text-sm">
+              <div className="flex items-center gap-2 bg-acs-vermelho-100 rounded-xl px-4 py-3 text-acs-vermelho text-sm">
                 <AlertCircle size={16} className="flex-shrink-0" />
                 {erro}
               </div>
@@ -119,10 +107,10 @@ export function Login() {
             <div>
               <input
                 type="text"
-                placeholder="Matrícula"
+                placeholder="Matricula"
                 value={matricula}
                 onChange={(e) => { setMatricula(e.target.value); setErro(null); }}
-                className="w-full px-4 py-3 rounded-xl bg-white/95 backdrop-blur border border-white/50 text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="w-full px-4 py-3 rounded-xl bg-white border border-acs-line text-acs-ink placeholder:text-acs-ink-4 focus:outline-none focus:ring-2 focus:ring-acs-azul"
               />
             </div>
 
@@ -132,12 +120,12 @@ export function Login() {
                 placeholder="Senha"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setErro(null); }}
-                className="w-full px-4 py-3 rounded-xl bg-white/95 backdrop-blur border border-white/50 text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-white/50 pr-12"
+                className="w-full px-4 py-3 rounded-xl bg-white border border-acs-line text-acs-ink placeholder:text-acs-ink-4 focus:outline-none focus:ring-2 focus:ring-acs-azul pr-12"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-acs-ink-3"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -146,15 +134,15 @@ export function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-white text-[#0066CC] font-semibold hover:bg-white/90 transition-colors shadow-lg disabled:opacity-70 flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-acs-azul text-white font-semibold hover:bg-acs-azul-900 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={18} className="animate-spin" />}
-              {loading ? 'Entrando…' : 'Entrar'}
+              {loading ? 'Entrando...' : 'Entrar'}
             </button>
 
             <button
               type="button"
-              className="w-full text-sm text-white/90 hover:text-white transition-colors"
+              className="w-full text-sm text-acs-ink-3 hover:text-acs-azul transition-colors"
             >
               Esqueci minha senha
             </button>
@@ -163,9 +151,9 @@ export function Login() {
 
         {/* Footer badge */}
         <div className="pb-8 flex justify-center">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm">
-            <Wifi size={16} className="text-white" />
-            <span className="text-sm text-white">Modo offline disponível</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-acs-paper-2">
+            <Wifi size={16} className="text-acs-ink-3" />
+            <span className="text-sm text-acs-ink-3">Modo offline disponivel</span>
           </div>
         </div>
       </div>

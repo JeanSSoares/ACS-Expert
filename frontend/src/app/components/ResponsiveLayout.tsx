@@ -13,7 +13,7 @@ export function ResponsiveLayout({ children, showNav = true }: ResponsiveLayoutP
   const isLoginPage = location.pathname === '/';
 
   return (
-    <div className="min-h-screen bg-[#F6F9FF]">
+    <div className="min-h-screen bg-background">
       {/* Desktop: Sidebar + Content */}
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar - apenas desktop e se não for login */}

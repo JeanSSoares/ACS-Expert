@@ -27,12 +27,12 @@ function InputField({ label, required, error, children }: {
 }) {
   return (
     <div>
-      <label className="text-sm font-medium text-[#0B1220] block mb-2">
-        {label}{required && <span className="text-[#EF4444] ml-1">*</span>}
+      <label className="text-sm font-medium text-acs-ink block mb-2">
+        {label}{required && <span className="text-acs-vermelho ml-1">*</span>}
       </label>
       {children}
       {error && (
-        <p className="mt-1.5 text-xs text-[#EF4444] flex items-center gap-1">
+        <p className="mt-1.5 text-xs text-acs-vermelho flex items-center gap-1">
           <AlertCircle size={12} />{error}
         </p>
       )}
@@ -40,8 +40,8 @@ function InputField({ label, required, error, children }: {
   )
 }
 
-const inputClass      = 'w-full px-4 py-2.5 rounded-lg border border-[#DBEAFE] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 text-sm'
-const inputErrorClass = 'w-full px-4 py-2.5 rounded-lg border border-[#EF4444] bg-white text-[#0B1220] placeholder:text-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/20 text-sm'
+const inputClass      = 'w-full px-4 py-2.5 rounded-xl border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul text-sm'
+const inputErrorClass = 'w-full px-4 py-2.5 rounded-xl border border-acs-vermelho bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-vermelho/20 text-sm'
 
 export function NovoUsuario() {
   const navigate    = useNavigate()
@@ -126,11 +126,11 @@ export function NovoUsuario() {
   if (sucesso) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 px-6">
-        <div className="w-16 h-16 rounded-full bg-[#DCFCE7] flex items-center justify-center">
-          <CheckCircle2 size={32} className="text-[#10B981]" />
+        <div className="w-16 h-16 rounded-full bg-acs-verde-100 flex items-center justify-center">
+          <CheckCircle2 size={32} className="text-acs-verde" />
         </div>
-        <h2 className="font-bold text-[#0B1220] text-lg text-center">Usuário criado com sucesso!</h2>
-        <p className="text-sm text-[#64748B] text-center">Redirecionando para a lista de usuários…</p>
+        <h2 className="font-bold text-acs-ink text-lg text-center font-display">Usuário criado com sucesso!</h2>
+        <p className="text-sm text-acs-ink-3 text-center">Redirecionando para a lista de usuários…</p>
       </div>
     )
   }
@@ -138,14 +138,14 @@ export function NovoUsuario() {
   return (
     <form onSubmit={handleSalvar} noValidate className="h-full flex flex-col overflow-y-auto pb-28">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-6 py-4 flex-shrink-0">
+      <div className="bg-white border-b border-acs-line px-6 py-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => navigate(-1)}>
-            <ArrowLeft size={24} color="#0B1220" />
+            <ArrowLeft size={24} className="text-acs-ink" />
           </button>
           <div>
-            <h2 className="font-bold text-[#0B1220]">Novo usuário</h2>
-            <p className="text-xs text-[#64748B]">Preencha os dados de acesso</p>
+            <h2 className="font-bold text-acs-ink font-display">Novo usuário</h2>
+            <p className="text-xs text-acs-ink-3">Preencha os dados de acesso</p>
           </div>
         </div>
       </div>
@@ -153,16 +153,16 @@ export function NovoUsuario() {
       <div className="flex-1 px-6 py-5 space-y-7">
         {/* Erro geral da API */}
         {erroApi && (
-          <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4">
-            <AlertCircle size={18} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-[#FECACA] rounded-xl p-4">
+            <AlertCircle size={18} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
             <p className="text-sm text-[#B91C1C]">{erroApi}</p>
           </div>
         )}
 
         {/* ── 1. Identificação ─────────────────────────── */}
         <section>
-          <h3 className="font-semibold text-[#0B1220] mb-4 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-[#0066CC] text-white text-xs flex items-center justify-center font-bold">1</span>
+          <h3 className="font-semibold text-acs-ink mb-4 flex items-center gap-2 font-display">
+            <span className="w-6 h-6 rounded-full bg-acs-azul text-white text-xs flex items-center justify-center font-bold">1</span>
             Identificação
           </h3>
           <div className="space-y-4">
@@ -188,13 +188,13 @@ export function NovoUsuario() {
 
         {/* ── 2. Perfil de acesso ───────────────────────── */}
         <section>
-          <h3 className="font-semibold text-[#0B1220] mb-4 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-[#0066CC] text-white text-xs flex items-center justify-center font-bold">2</span>
+          <h3 className="font-semibold text-acs-ink mb-4 flex items-center gap-2 font-display">
+            <span className="w-6 h-6 rounded-full bg-acs-azul text-white text-xs flex items-center justify-center font-bold">2</span>
             Perfil de acesso
           </h3>
 
           {errors.perfil && (
-            <p className="mb-3 text-xs text-[#EF4444] flex items-center gap-1">
+            <p className="mb-3 text-xs text-acs-vermelho flex items-center gap-1">
               <AlertCircle size={12} />{errors.perfil}
             </p>
           )}
@@ -206,16 +206,16 @@ export function NovoUsuario() {
                 <button key={op.value} type="button"
                   onClick={() => { set('perfil', op.value); if (op.value !== 'acs') set('microareaId', '') }}
                   className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                    ativo ? 'border-[#0066CC] bg-[#E8F0FE]' : 'border-[#DBEAFE] bg-white hover:border-[#0066CC]/40'
+                    ativo ? 'border-acs-azul bg-[#E8F0FE]' : 'border-acs-line bg-white hover:border-acs-azul/40'
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0 ${ativo ? 'border-[#0066CC] bg-[#0066CC]' : 'border-[#CBD5E1]'}`}>
+                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 flex-shrink-0 ${ativo ? 'border-acs-azul bg-acs-azul' : 'border-[#CBD5E1]'}`}>
                       {ativo && <div className="w-full h-full rounded-full bg-white scale-[0.4]" />}
                     </div>
                     <div>
-                      <p className={`font-semibold text-sm ${ativo ? 'text-[#0066CC]' : 'text-[#0B1220]'}`}>{op.label}</p>
-                      <p className="text-xs text-[#64748B] mt-0.5">{op.descricao}</p>
+                      <p className={`font-semibold text-sm ${ativo ? 'text-acs-azul' : 'text-acs-ink'}`}>{op.label}</p>
+                      <p className="text-xs text-acs-ink-3 mt-0.5">{op.descricao}</p>
                     </div>
                   </div>
                 </button>
@@ -241,7 +241,7 @@ export function NovoUsuario() {
                 </select>
               </InputField>
               {erroMicroareas && (
-                <p className="mt-1.5 text-xs text-[#EF4444] flex items-center gap-1">
+                <p className="mt-1.5 text-xs text-acs-vermelho flex items-center gap-1">
                   <AlertCircle size={12} />{erroMicroareas}
                 </p>
               )}
@@ -251,8 +251,8 @@ export function NovoUsuario() {
 
         {/* ── 3. Senha ──────────────────────────────────── */}
         <section>
-          <h3 className="font-semibold text-[#0B1220] mb-4 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-[#0066CC] text-white text-xs flex items-center justify-center font-bold">3</span>
+          <h3 className="font-semibold text-acs-ink mb-4 flex items-center gap-2 font-display">
+            <span className="w-6 h-6 rounded-full bg-acs-azul text-white text-xs flex items-center justify-center font-bold">3</span>
             Senha de acesso
           </h3>
           <div className="space-y-4">
@@ -262,7 +262,7 @@ export function NovoUsuario() {
                   value={form.senha} onChange={(e) => set('senha', e.target.value)}
                   className={`${errors.senha ? inputErrorClass : inputClass} pr-11`} />
                 <button type="button" onClick={() => setShowSenha((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-acs-ink-3">
                   {showSenha ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
@@ -274,7 +274,7 @@ export function NovoUsuario() {
                   value={form.senhaConfirmacao} onChange={(e) => set('senhaConfirmacao', e.target.value)}
                   className={`${errors.senhaConfirmacao ? inputErrorClass : inputClass} pr-11`} />
                 <button type="button" onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-acs-ink-3">
                   {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
@@ -286,13 +286,13 @@ export function NovoUsuario() {
 
         {/* ── Status ────────────────────────────────────── */}
         <section>
-          <label className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#DBEAFE] cursor-pointer hover:bg-[#F6F9FF] transition-colors">
+          <label className="flex items-center justify-between p-4 bg-white rounded-xl border border-acs-line cursor-pointer hover:bg-background transition-colors">
             <div>
-              <p className="font-medium text-sm text-[#0B1220]">Usuário ativo</p>
-              <p className="text-xs text-[#64748B] mt-0.5">Permite acesso imediato ao sistema</p>
+              <p className="font-medium text-sm text-acs-ink">Usuário ativo</p>
+              <p className="text-xs text-acs-ink-3 mt-0.5">Permite acesso imediato ao sistema</p>
             </div>
             <div onClick={() => set('ativo', !form.ativo)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${form.ativo ? 'bg-[#0066CC]' : 'bg-[#CBD5E1]'}`}>
+              className={`w-12 h-6 rounded-full transition-colors relative ${form.ativo ? 'bg-acs-azul' : 'bg-[#CBD5E1]'}`}>
               <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform shadow ${form.ativo ? 'translate-x-6' : 'translate-x-0.5'}`} />
             </div>
           </label>
@@ -300,14 +300,14 @@ export function NovoUsuario() {
       </div>
 
       {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DBEAFE] p-4 max-w-[800px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[800px] mx-auto">
         <div className="flex gap-3">
           <button type="button" onClick={() => navigate(-1)} disabled={salvando}
-            className="px-6 py-3 text-[#64748B] font-semibold text-sm hover:text-[#0B1220] transition-colors disabled:opacity-50">
+            className="px-6 py-3 text-acs-ink-3 font-semibold text-sm hover:text-acs-ink transition-colors disabled:opacity-50">
             Cancelar
           </button>
           <button type="submit" disabled={salvando}
-            className="flex-1 py-3 bg-[#0066CC] text-white rounded-xl font-semibold text-sm hover:bg-[#0052A3] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+            className="flex-1 py-3 bg-acs-azul text-white rounded-xl font-semibold text-sm hover:bg-acs-azul-900 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
             {salvando && <Loader2 size={16} className="animate-spin" />}
             {salvando ? 'Salvando…' : 'Criar usuário'}
           </button>
@@ -325,7 +325,7 @@ function SenhaForca({ senha }: { senha: string }) {
     { ok: /[^A-Za-z0-9]/.test(senha), label: 'Especial' },
   ]
   const forca = criterios.filter((c) => c.ok).length
-  const cor   = forca <= 1 ? '#EF4444' : forca === 2 ? '#F59E0B' : forca === 3 ? '#3B82F6' : '#10B981'
+  const cor   = forca <= 1 ? 'var(--acs-vermelho)' : forca === 2 ? 'var(--acs-amar)' : forca === 3 ? '#3B82F6' : 'var(--acs-verde)'
   const label = forca <= 1 ? 'Fraca'   : forca === 2 ? 'Regular' : forca === 3 ? 'Boa'    : 'Forte'
 
   return (
@@ -341,7 +341,7 @@ function SenhaForca({ senha }: { senha: string }) {
         <div className="flex gap-3">
           {criterios.map((c) => (
             <span key={c.label} className="text-[10px] flex items-center gap-1"
-              style={{ color: c.ok ? '#10B981' : '#94A3B8' }}>
+              style={{ color: c.ok ? 'var(--acs-verde)' : '#94A3B8' }}>
               <span>{c.ok ? '✓' : '○'}</span>{c.label}
             </span>
           ))}

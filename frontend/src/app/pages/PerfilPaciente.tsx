@@ -81,7 +81,7 @@ export function PerfilPaciente() {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center gap-2 text-[#64748B]">
+      <div className="h-full flex items-center justify-center gap-2 text-acs-ink-3">
         <Loader2 size={20} className="animate-spin" />
         Carregando paciente...
       </div>
@@ -91,11 +91,11 @@ export function PerfilPaciente() {
   if (erro || !paciente) {
     return (
       <div className="h-full flex flex-col p-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#0B1220] mb-6">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-acs-ink mb-6">
           <ArrowLeft size={20} /> Voltar
         </button>
-        <div className="flex items-start gap-3 bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4">
-          <AlertCircle size={18} className="text-[#EF4444] flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-[#FECACA] rounded-xl p-4">
+          <AlertCircle size={18} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
           <p className="text-sm text-[#B91C1C]">{erro ?? 'Paciente não encontrado.'}</p>
         </div>
       </div>
@@ -124,17 +124,17 @@ export function PerfilPaciente() {
   return (
     <div className="h-full flex flex-col overflow-y-auto pb-28">
       {/* Header */}
-      <div className="bg-white border-b border-[#DBEAFE] px-6 py-4">
+      <div className="bg-white border-b border-acs-line px-6 py-4">
         <div className="flex items-center justify-between gap-3 mb-3">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <button onClick={() => navigate(-1)} aria-label="Voltar">
-              <ArrowLeft size={24} color="#0B1220" />
+              <ArrowLeft size={24} className="text-acs-ink" />
             </button>
-            <h2 className="font-bold text-[#0B1220] truncate">{paciente.nome}</h2>
+            <h2 className="font-display font-bold text-acs-ink truncate">{paciente.nome}</h2>
           </div>
           <button
             onClick={irParaEditar}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#0066CC] text-[#0066CC] text-sm font-medium hover:bg-[#F0F9FF] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-acs-azul text-acs-azul text-sm font-medium hover:bg-[#F0F9FF] transition-colors"
           >
             <Pencil size={16} /> Editar
           </button>
@@ -144,33 +144,33 @@ export function PerfilPaciente() {
 
       <div className="px-6 py-4 space-y-6">
         {/* Dados resumidos */}
-        <div className="bg-white rounded-xl p-4 border border-[#DBEAFE]" style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}>
+        <div className="bg-white rounded-xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-[#64748B]">Idade</p>
-              <p className="font-semibold text-[#0B1220]">{idade} anos</p>
+              <p className="text-xs text-acs-ink-3">Idade</p>
+              <p className="font-semibold text-acs-ink">{idade} anos</p>
             </div>
             <div>
-              <p className="text-xs text-[#64748B]">Sexo</p>
-              <p className="font-semibold text-[#0B1220]">
+              <p className="text-xs text-acs-ink-3">Sexo</p>
+              <p className="font-semibold text-acs-ink">
                 {paciente.sexo === 'm' ? 'Masculino' : 'Feminino'}
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#64748B]">CPF</p>
-              <p className="font-semibold text-[#0B1220]">{formatarCPF(paciente.cpf)}</p>
+              <p className="text-xs text-acs-ink-3">CPF</p>
+              <p className="font-semibold text-acs-ink">{formatarCPF(paciente.cpf)}</p>
             </div>
             <div>
-              <p className="text-xs text-[#64748B]">CNS</p>
-              <p className="font-semibold text-[#0B1220]">{formatarCNS(paciente.cns)}</p>
+              <p className="text-xs text-acs-ink-3">CNS</p>
+              <p className="font-semibold text-acs-ink">{formatarCNS(paciente.cns)}</p>
             </div>
             <div>
-              <p className="text-xs text-[#64748B]">Microárea</p>
-              <p className="font-semibold text-[#0B1220]">{paciente.microarea_nome ?? '—'}</p>
+              <p className="text-xs text-acs-ink-3">Microárea</p>
+              <p className="font-semibold text-acs-ink">{paciente.microarea_nome ?? '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-[#64748B]">ACS responsável</p>
-              <p className="font-semibold text-[#0B1220]">{paciente.acs_nome ?? 'Não atribuído'}</p>
+              <p className="text-xs text-acs-ink-3">ACS responsável</p>
+              <p className="font-semibold text-acs-ink">{paciente.acs_nome ?? 'Não atribuído'}</p>
             </div>
           </div>
         </div>
@@ -178,20 +178,20 @@ export function PerfilPaciente() {
         {/* Endereço */}
         {(endereco || paciente.bairro || paciente.cep || paciente.nome_referencia) && (
           <div>
-            <h3 className="font-semibold text-[#0B1220] mb-3">Endereço</h3>
-            <div className="bg-white rounded-xl p-4 border border-[#DBEAFE]" style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}>
+            <h3 className="font-display font-semibold text-acs-ink mb-3">Endereço</h3>
+            <div className="bg-white rounded-xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
               <div className="flex items-start gap-3">
-                <MapPin size={18} className="text-[#64748B] flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-[#0B1220] space-y-0.5">
+                <MapPin size={18} className="text-acs-ink-3 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-acs-ink space-y-0.5">
                   <p>{endereco || '—'}</p>
-                  {paciente.complemento && <p className="text-[#64748B]">{paciente.complemento}</p>}
+                  {paciente.complemento && <p className="text-acs-ink-3">{paciente.complemento}</p>}
                   {(paciente.bairro || paciente.cep) && (
-                    <p className="text-[#64748B]">
+                    <p className="text-acs-ink-3">
                       {[paciente.bairro, paciente.cep].filter(Boolean).join(' — ')}
                     </p>
                   )}
                   {paciente.nome_referencia && (
-                    <p className="text-xs text-[#64748B] mt-1 italic">
+                    <p className="text-xs text-acs-ink-3 mt-1 italic">
                       Ref.: {paciente.nome_referencia}
                     </p>
                   )}
@@ -204,12 +204,12 @@ export function PerfilPaciente() {
         {/* Contexto social */}
         {bandeirasSociais.length > 0 && (
           <div>
-            <h3 className="font-semibold text-[#0B1220] mb-3">Contexto social</h3>
+            <h3 className="font-display font-semibold text-acs-ink mb-3">Contexto social</h3>
             <div className="flex flex-wrap gap-2">
               {bandeirasSociais.map((b) => (
                 <span
                   key={b}
-                  className="px-3 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-sm font-medium border border-[#F59E0B]"
+                  className="px-3 py-1.5 bg-acs-amar-100 text-[#92400E] rounded-full text-sm font-medium border border-acs-amar"
                 >
                   {b}
                 </span>
@@ -220,7 +220,7 @@ export function PerfilPaciente() {
 
         {/* Comorbidades */}
         <div>
-          <h3 className="font-semibold text-[#0B1220] mb-3">Comorbidades</h3>
+          <h3 className="font-display font-semibold text-acs-ink mb-3">Comorbidades</h3>
           {paciente.comorbidades && paciente.comorbidades.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {paciente.comorbidades.map((c) => (
@@ -233,29 +233,29 @@ export function PerfilPaciente() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#64748B]">Nenhuma comorbidade registrada.</p>
+            <p className="text-sm text-acs-ink-3">Nenhuma comorbidade registrada.</p>
           )}
         </div>
 
         {/* Histórico de Triagens */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-[#0B1220]">Histórico de Triagens</h3>
+            <h3 className="font-display font-semibold text-acs-ink">Histórico de Triagens</h3>
             {triagens.length > 0 && (
-              <span className="text-xs text-[#64748B]">{triagens.length} registro(s)</span>
+              <span className="text-xs text-acs-ink-3">{triagens.length} registro(s)</span>
             )}
           </div>
 
           {triagens.length === 0 ? (
-            <div className="bg-white rounded-xl p-6 border border-dashed border-[#DBEAFE] text-center">
+            <div className="bg-white rounded-xl p-6 border border-dashed border-acs-line text-center">
               <ClipboardList size={28} className="text-[#94A3B8] mx-auto mb-2" />
-              <p className="text-sm text-[#64748B] mb-1">Nenhuma triagem registrada</p>
+              <p className="text-sm text-acs-ink-3 mb-1">Nenhuma triagem registrada</p>
               <p className="text-xs text-[#94A3B8] mb-4">
                 As triagens realizadas com este paciente aparecerão aqui.
               </p>
               <button
                 onClick={() => navigate(`/triagem/${paciente.id}/passo1`)}
-                className="text-sm text-[#0066CC] font-medium hover:underline"
+                className="text-sm text-acs-azul font-medium hover:underline"
               >
                 Iniciar primeira triagem →
               </button>
@@ -265,7 +265,7 @@ export function PerfilPaciente() {
               {triagens.map((triagem, index) => (
                 <div key={triagem.id} className="relative">
                   {index < triagens.length - 1 && (
-                    <div className="absolute left-3 top-10 bottom-0 w-0.5 bg-[#DBEAFE]" />
+                    <div className="absolute left-3 top-10 bottom-0 w-0.5 bg-acs-line" />
                   )}
                   <div className="flex gap-4">
                     <div className="relative z-10">
@@ -273,29 +273,29 @@ export function PerfilPaciente() {
                         className="w-6 h-6 rounded-full border-4 border-white"
                         style={{
                           backgroundColor:
-                            triagem.risco === 'urgent'  ? '#EF4444' :
-                            triagem.risco === 'warning' ? '#F59E0B' : '#10B981',
+                            triagem.risco === 'urgent'  ? 'var(--acs-vermelho)' :
+                            triagem.risco === 'warning' ? 'var(--acs-amar)' : 'var(--acs-verde)',
                         }}
                       />
                     </div>
-                    <div className="flex-1 bg-white rounded-xl p-4 border border-[#DBEAFE]" style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}>
+                    <div className="flex-1 bg-white rounded-xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
                       <div className="flex items-start justify-between mb-2">
-                        <p className="text-sm font-semibold text-[#0B1220]">{triagem.data}</p>
+                        <p className="text-sm font-semibold text-acs-ink">{triagem.data}</p>
                         <RiskBadge level={triagem.risco} label={`${triagem.score}%`} />
                       </div>
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {triagem.sintomas.slice(0, 3).map((s) => (
-                          <span key={s} className="px-2 py-1 bg-[#F6F9FF] text-[#64748B] rounded text-xs">{s}</span>
+                          <span key={s} className="px-2 py-1 bg-background text-acs-ink-3 rounded text-xs">{s}</span>
                         ))}
                       </div>
-                      <p className="text-sm text-[#0B1220] mb-3">
+                      <p className="text-sm text-acs-ink mb-3">
                         <span className="font-medium">Ação:</span> {triagem.acao}
                       </p>
                       <div className="flex items-center justify-between">
-                        <span className={`text-xs ${triagem.status === 'realizado' ? 'text-[#10B981]' : 'text-[#F59E0B]'}`}>
+                        <span className={`text-xs ${triagem.status === 'realizado' ? 'text-acs-verde' : 'text-acs-amar'}`}>
                           {triagem.status === 'realizado' ? '✓ Realizado' : '⏱ Pendente'}
                         </span>
-                        <button className="text-xs text-[#0066CC] font-medium">Ver detalhe</button>
+                        <button className="text-xs text-acs-azul font-medium">Ver detalhe</button>
                       </div>
                     </div>
                   </div>
@@ -308,16 +308,16 @@ export function PerfilPaciente() {
         {/* Encaminhamentos */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-[#0B1220]">Encaminhamentos</h3>
+            <h3 className="font-display font-semibold text-acs-ink">Encaminhamentos</h3>
             {encaminhamentos.length > 0 && (
-              <span className="text-xs text-[#64748B]">{encaminhamentos.length} registro(s)</span>
+              <span className="text-xs text-acs-ink-3">{encaminhamentos.length} registro(s)</span>
             )}
           </div>
 
           {encaminhamentos.length === 0 ? (
-            <div className="bg-white rounded-xl p-6 border border-dashed border-[#DBEAFE] text-center">
+            <div className="bg-white rounded-xl p-6 border border-dashed border-acs-line text-center">
               <FileText size={28} className="text-[#94A3B8] mx-auto mb-2" />
-              <p className="text-sm text-[#64748B] mb-1">Nenhum encaminhamento registrado</p>
+              <p className="text-sm text-acs-ink-3 mb-1">Nenhum encaminhamento registrado</p>
               <p className="text-xs text-[#94A3B8]">
                 Encaminhamentos para UBS, consultas ou exames aparecerão aqui.
               </p>
@@ -327,24 +327,24 @@ export function PerfilPaciente() {
               {encaminhamentos.map((enc) => (
                 <button
                   key={enc.id}
-                  className="w-full bg-white rounded-xl p-3 border border-[#DBEAFE] flex items-center justify-between hover:border-[#0066CC] transition-colors text-left"
-                  style={{ boxShadow: '0 6px 18px rgba(16,25,40,0.04)' }}
+                  className="w-full bg-white rounded-xl p-3 border border-acs-line flex items-center justify-between hover:border-acs-azul transition-colors text-left"
+                  style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}
                 >
                   <div className="min-w-0">
-                    <p className="font-medium text-[#0B1220] text-sm">{enc.tipo}</p>
-                    <p className="text-xs text-[#64748B]">{enc.data}</p>
+                    <p className="font-medium text-acs-ink text-sm">{enc.tipo}</p>
+                    <p className="text-xs text-acs-ink-3">{enc.data}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                       enc.status === 'realizado'
-                        ? 'bg-[#D1FAE5] text-[#065F46]'
+                        ? 'bg-acs-verde-100 text-[#065F46]'
                         : enc.status === 'pendente'
-                          ? 'bg-[#FEF3C7] text-[#92400E]'
-                          : 'bg-[#FEE2E2] text-[#991B1B]'
+                          ? 'bg-acs-amar-100 text-[#92400E]'
+                          : 'bg-acs-vermelho-100 text-[#991B1B]'
                     }`}>
                       {enc.status.charAt(0).toUpperCase() + enc.status.slice(1)}
                     </span>
-                    <ChevronRight size={16} className="text-[#64748B]" />
+                    <ChevronRight size={16} className="text-acs-ink-3" />
                   </div>
                 </button>
               ))}
@@ -354,15 +354,15 @@ export function PerfilPaciente() {
       </div>
 
       {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#DBEAFE] p-4 max-w-[800px] mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[800px] mx-auto">
         <div className="flex gap-3">
           <button
             onClick={() => navigate(`/triagem/${paciente.id}/passo1`)}
-            className="flex-1 py-3 bg-[#0066CC] text-white rounded-xl font-semibold hover:bg-[#0052A3] transition-colors"
+            className="flex-1 py-3 bg-acs-azul text-white rounded-xl font-semibold hover:bg-acs-azul-900 transition-colors"
           >
             Nova Triagem
           </button>
-          <button className="flex-1 py-3 bg-white text-[#0066CC] rounded-xl font-semibold border-2 border-[#0066CC] hover:bg-[#F6F9FF] transition-colors">
+          <button className="flex-1 py-3 bg-white text-acs-azul rounded-xl font-semibold border-2 border-acs-azul hover:bg-background transition-colors">
             Registrar Visita
           </button>
         </div>

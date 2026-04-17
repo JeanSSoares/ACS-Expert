@@ -1,7 +1,3 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
-
-* {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-}

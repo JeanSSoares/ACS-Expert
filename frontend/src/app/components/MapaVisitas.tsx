@@ -36,10 +36,10 @@ export function MapaVisitas({ visitas, mostrarRota = false }: MapaVisitasProps) 
 
   const getPrioridadeColor = (prioridade: string) => {
     switch (prioridade) {
-      case 'urgent': return '#EF4444';
-      case 'warning': return '#F59E0B';
-      case 'low': return '#10B981';
-      default: return '#0066CC';
+      case 'urgent': return 'var(--acs-vermelho)';
+      case 'warning': return 'var(--acs-amar)';
+      case 'low': return 'var(--acs-verde)';
+      default: return 'var(--acs-azul)';
     }
   };
 
@@ -53,13 +53,13 @@ export function MapaVisitas({ visitas, mostrarRota = false }: MapaVisitasProps) 
     : '';
 
   return (
-    <div className="h-[400px] w-full rounded-lg overflow-hidden border-2 border-[#DBEAFE] bg-gradient-to-br from-[#F0F9FF] to-[#E0F2FE] relative">
+    <div className="h-[400px] w-full rounded-xl overflow-hidden border-2 border-acs-line bg-gradient-to-br from-[#F0F9FF] to-[#E0F2FE] relative">
       {/* Grid de fundo para simular mapa */}
       <div className="absolute inset-0 opacity-10">
         <svg width="100%" height="100%">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0066CC" strokeWidth="1"/>
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--acs-azul)" strokeWidth="1"/>
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -68,12 +68,12 @@ export function MapaVisitas({ visitas, mostrarRota = false }: MapaVisitasProps) 
 
       {/* Elementos decorativos de ruas */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-1/4 left-0 right-0 h-0.5 bg-[#64748B]"></div>
-        <div className="absolute top-2/4 left-0 right-0 h-1 bg-[#64748B]"></div>
-        <div className="absolute top-3/4 left-0 right-0 h-0.5 bg-[#64748B]"></div>
-        <div className="absolute top-0 bottom-0 left-1/4 w-0.5 bg-[#64748B]"></div>
-        <div className="absolute top-0 bottom-0 left-2/4 w-1 bg-[#64748B]"></div>
-        <div className="absolute top-0 bottom-0 left-3/4 w-0.5 bg-[#64748B]"></div>
+        <div className="absolute top-1/4 left-0 right-0 h-0.5 bg-acs-ink-3"></div>
+        <div className="absolute top-2/4 left-0 right-0 h-1 bg-acs-ink-3"></div>
+        <div className="absolute top-3/4 left-0 right-0 h-0.5 bg-acs-ink-3"></div>
+        <div className="absolute top-0 bottom-0 left-1/4 w-0.5 bg-acs-ink-3"></div>
+        <div className="absolute top-0 bottom-0 left-2/4 w-1 bg-acs-ink-3"></div>
+        <div className="absolute top-0 bottom-0 left-3/4 w-0.5 bg-acs-ink-3"></div>
       </div>
 
       {/* SVG para linha de rota */}
@@ -86,7 +86,7 @@ export function MapaVisitas({ visitas, mostrarRota = false }: MapaVisitasProps) 
           <path
             d={rotaPath}
             fill="none"
-            stroke="#0066CC"
+            stroke="var(--acs-azul)"
             strokeWidth="0.5"
             strokeDasharray="2,2"
             opacity="0.8"
@@ -119,18 +119,18 @@ export function MapaVisitas({ visitas, mostrarRota = false }: MapaVisitasProps) 
             
             {/* Tooltip ao hover */}
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-              <div className="bg-white rounded-lg shadow-xl p-3 min-w-[200px] border border-[#DBEAFE]">
-                <div className="font-bold text-[#0B1220] text-sm mb-1">{visita.paciente}</div>
-                <div className="text-[#64748B] text-xs mb-1">{visita.endereco}</div>
-                <div className="text-[#64748B] text-xs mb-1">{visita.razao}</div>
-                <div className="text-[#64748B] text-xs mb-2">
+              <div className="bg-white rounded-xl shadow-xl p-3 min-w-[200px] border border-acs-line">
+                <div className="font-bold text-acs-ink text-sm mb-1">{visita.paciente}</div>
+                <div className="text-acs-ink-3 text-xs mb-1">{visita.endereco}</div>
+                <div className="text-acs-ink-3 text-xs mb-1">{visita.razao}</div>
+                <div className="text-acs-ink-3 text-xs mb-2">
                   <MapPin size={10} className="inline mr-1" />
                   {visita.distancia}
                 </div>
                 {visita.status === 'realizada' ? (
-                  <div className="text-[#10B981] text-xs font-medium">✓ Realizada</div>
+                  <div className="text-acs-verde text-xs font-medium">✓ Realizada</div>
                 ) : (
-                  <div className="text-[#0066CC] text-xs font-medium">📍 Pendente</div>
+                  <div className="text-acs-azul text-xs font-medium">Pendente</div>
                 )}
                 {/* Seta do tooltip */}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
@@ -151,9 +151,9 @@ export function MapaVisitas({ visitas, mostrarRota = false }: MapaVisitasProps) 
       })}
 
       {/* Legenda no canto */}
-      <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-md border border-[#DBEAFE]">
-        <div className="text-xs font-semibold text-[#0B1220] mb-1">Mapa de Visitas</div>
-        <div className="text-xs text-[#64748B]">📍 Área de cobertura</div>
+      <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 shadow-md border border-acs-line">
+        <div className="text-xs font-semibold text-acs-ink mb-1 font-display">Mapa de Visitas</div>
+        <div className="text-xs text-acs-ink-3">Area de cobertura</div>
       </div>
     </div>
   );
