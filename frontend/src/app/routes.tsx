@@ -8,6 +8,7 @@ import { EditarPaciente } from './pages/EditarPaciente';
 import { TriagemPasso1 } from './pages/TriagemPasso1';
 import { TriagemPasso2 } from './pages/TriagemPasso2';
 import { TriagemResultado } from './pages/TriagemResultado';
+import { DetalheTriagem } from './pages/DetalheTriagem';
 import { Agenda } from './pages/Agenda';
 import { Encaminhamentos } from './pages/Encaminhamentos';
 import { Alertas } from './pages/Alertas';
@@ -87,6 +88,14 @@ export const router = createBrowserRouter([
     element: (
       <ResponsiveLayout>
         <TriagemResultado />
+      </ResponsiveLayout>
+    )
+  },
+  {
+    path: '/triagem/:id/detalhe',
+    element: (
+      <ResponsiveLayout>
+        <DetalheTriagem />
       </ResponsiveLayout>
     )
   },

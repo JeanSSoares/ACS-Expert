@@ -1,4 +1,8 @@
-import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft, Loader2, AlertCircle,
+  CalendarCheck, Search, Undo2, AlertTriangle,
+  ArrowRight, Lock, Check,
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
 import { useTriagemStore } from '@/store/triagemStore';
@@ -18,12 +22,14 @@ const FATORES_RISCO: { id: Comorbidade; label: string }[] = [
   { id: 'imunossuprimido', label: 'Imunossuprimido(a)' },
 ];
 
-const TIPOS_VISITA: { id: TipoVisita; label: string }[] = [
-  { id: 'rotina',      label: 'Rotina' },
-  { id: 'busca_ativa', label: 'Busca ativa' },
-  { id: 'retorno',     label: 'Retorno' },
-  { id: 'urgencia',    label: 'Urgencia' },
+const TIPOS_VISITA: { id: TipoVisita; label: string; desc: string; icon: typeof CalendarCheck }[] = [
+  { id: 'rotina',      label: 'Rotina',      desc: 'Visita programada',      icon: CalendarCheck },
+  { id: 'busca_ativa', label: 'Busca ativa',  desc: 'Busca de faltosos',      icon: Search },
+  { id: 'retorno',     label: 'Retorno',      desc: 'Acompanhamento',         icon: Undo2 },
+  { id: 'urgencia',    label: 'Urgencia',     desc: 'Demanda espontanea',     icon: AlertTriangle },
 ];
+
+const STEPPER_LABELS = ['Contexto', 'Sintomas', 'Resultado'];
 
 export function TriagemPasso1() {
   const navigate = useNavigate();
@@ -36,6 +42,11 @@ export function TriagemPasso1() {
 
   const [loading, setLoading] = useState(true);
   const [erro, setErro]       = useState<string | null>(null);
+
+  // Extra patient data not in the triagem store
+  const [pacCns, setPacCns]               = useState<string | undefined>();
+  const [pacMicroarea, setPacMicroarea]    = useState<string | undefined>();
+  const [pacComorbidades, setPacComorbidades] = useState<Comorbidade[]>([]);
 
   useEffect(() => {
     if (!pacienteId) return;
@@ -66,6 +77,10 @@ export function TriagemPasso1() {
           faixaEtaria: idadeParaFaixaEtaria(idade),
         });
 
+        setPacCns(pac.cns);
+        setPacMicroarea(pac.microarea_nome);
+        setPacComorbidades(pac.comorbidades ?? []);
+
         if (!catalogo) setCatalogo(cat);
 
         if (riskFactors.length === 0 && pac.comorbidades?.length) {
@@ -85,6 +100,7 @@ export function TriagemPasso1() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pacienteId]);
 
+  /* ── Loading ─────────────────────────────────────────────── */
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center gap-2 text-acs-ink-3">
@@ -94,6 +110,7 @@ export function TriagemPasso1() {
     );
   }
 
+  /* ── Error ───────────────────────────────────────────────── */
   if (erro || !paciente) {
     return (
       <div className="h-full flex flex-col p-6">
@@ -108,106 +125,254 @@ export function TriagemPasso1() {
     );
   }
 
+  /* ── Helpers ─────────────────────────────────────────────── */
+  const initials = paciente.nome
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+
+  // Which risk factors came from the patient's record (locked)
+  const lockedFactors = pacComorbidades;
+  // Observed = currently selected minus the locked ones
+  const observedFactorIds = riskFactors.filter((f) => !lockedFactors.includes(f));
+
   return (
-    <div className="h-full flex flex-col overflow-y-auto pb-24">
-      {/* Header */}
-      <div className="bg-white border-b border-acs-line px-6 py-4">
-        <div className="flex items-center gap-3 mb-3">
-          <button onClick={() => navigate(-1)}>
-            <ArrowLeft size={24} className="text-acs-ink" />
+    <div className="h-full flex flex-col bg-acs-paper overflow-y-auto pb-28">
+      {/* ── Header + Stepper ───────────────────────────────── */}
+      <div className="bg-white border-b border-acs-line px-5 pt-4 pb-5">
+        {/* Top row */}
+        <div className="flex items-center gap-3 mb-1">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-acs-paper shrink-0"
+          >
+            <ArrowLeft size={20} className="text-acs-ink" />
           </button>
           <div className="min-w-0">
-            <h2 className="font-display font-bold text-acs-ink">Nova Triagem</h2>
-            <p className="text-sm text-acs-ink-3 truncate">
-              {paciente.nome} • {paciente.idade} anos • {paciente.sexo === 'm' ? 'Masculino' : 'Feminino'}
+            <h2 className="font-display text-[18px] font-bold leading-tight text-acs-ink">
+              Nova triagem
+            </h2>
+            <p className="text-[13px] text-acs-ink-3 truncate">
+              {paciente.nome} &middot; {paciente.idade} anos
             </p>
           </div>
         </div>
 
-        {/* Progress */}
-        <div className="flex items-center gap-2 mt-4">
-          <div className="flex-1 h-1.5 bg-acs-azul rounded-full" />
-          <div className="flex-1 h-1.5 bg-acs-paper-2 rounded-full" />
-          <div className="flex-1 h-1.5 bg-acs-paper-2 rounded-full" />
+        {/* Stepper */}
+        <div className="flex items-center gap-0 mt-5">
+          {STEPPER_LABELS.map((label, i) => {
+            const isActive  = i === 0;
+            const isDone    = false; // step 1 is current
+            return (
+              <div key={label} className="flex items-center flex-1 last:flex-initial">
+                <div className="flex flex-col items-center gap-1">
+                  <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      isActive
+                        ? 'bg-acs-azul text-white'
+                        : isDone
+                          ? 'bg-acs-azul text-white'
+                          : 'bg-acs-paper-2 border border-acs-line text-acs-ink-3'
+                    }`}
+                  >
+                    {i + 1}
+                  </div>
+                  {isActive && (
+                    <span className="text-[11px] font-semibold text-acs-azul whitespace-nowrap">
+                      {label}
+                    </span>
+                  )}
+                </div>
+                {i < STEPPER_LABELS.length - 1 && (
+                  <div className="flex-1 h-[2px] bg-acs-paper-2 mx-2 self-start mt-3.5" />
+                )}
+              </div>
+            );
+          })}
         </div>
-        <p className="eyebrow mt-2">1 de 3 — Fatores de risco e contexto</p>
       </div>
 
-      <div className="flex-1 px-6 py-4 space-y-6">
-        {/* Fatores de Risco */}
+      {/* ── Content ────────────────────────────────────────── */}
+      <div className="flex-1 px-5 py-5 space-y-6">
+
+        {/* Patient hero card */}
+        <div className="bg-gradient-to-br from-acs-azul to-acs-azul-700 rounded-[18px] p-5 text-white flex items-center gap-4">
+          {/* Initials */}
+          <div className="w-[52px] h-[52px] rounded-[14px] bg-white/15 flex items-center justify-center shrink-0">
+            <span className="font-display text-[18px] font-bold text-white/90">{initials}</span>
+          </div>
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <p className="font-display text-[16px] font-bold leading-tight truncate">
+              {paciente.nome}
+            </p>
+            <p className="font-mono text-[11px] text-white/60 mt-0.5 tracking-wide truncate">
+              {pacCns ? `CNS ${pacCns}` : 'CNS --'}
+              {pacMicroarea ? ` \u00B7 MA ${pacMicroarea}` : ''}
+            </p>
+          </div>
+          {/* Age + sex */}
+          <div className="text-right shrink-0">
+            <p className="font-display text-[22px] font-bold leading-none">
+              {paciente.idade}
+            </p>
+            <p className="text-[11px] text-white/60 mt-0.5">
+              anos &middot; {paciente.sexo === 'm' ? 'M' : 'F'}
+            </p>
+          </div>
+        </div>
+
+        {/* ── Section 01: Tipo de visita ───────────────────── */}
         <div>
-          <h3 className="font-display font-semibold text-acs-ink mb-1">Fatores de Risco / Comorbidades</h3>
-          <p className="text-xs text-acs-ink-3 mb-3">
-            Pre-selecionadas com base no prontuario. Ajuste se necessario.
+          <p className="eyebrow mb-1">01</p>
+          <h3 className="font-display text-[17px] font-bold text-acs-ink leading-tight">
+            Tipo de visita
+          </h3>
+          <p className="text-[12px] text-acs-ink-3 mb-3">
+            Selecione o contexto desta visita domiciliar.
           </p>
-          <div className="grid grid-cols-2 gap-2">
-            {FATORES_RISCO.map((f) => {
-              const ativo = riskFactors.includes(f.id);
+
+          <div className="grid grid-cols-2 gap-2.5">
+            {TIPOS_VISITA.map((t) => {
+              const ativo = tipoVisita === t.id;
+              const isUrgencia = t.id === 'urgencia';
+              const Icon = t.icon;
+
               return (
                 <button
-                  key={f.id}
+                  key={t.id}
                   type="button"
-                  onClick={() => toggleRiskFactor(f.id)}
-                  className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
+                  onClick={() => setTipoVisita(t.id)}
+                  className={`flex items-start gap-3 p-3.5 rounded-2xl text-left transition-all ${
                     ativo
-                      ? 'bg-acs-azul text-white'
-                      : 'bg-white text-acs-ink border border-acs-line'
+                      ? isUrgencia
+                        ? 'bg-acs-coral-100 border-2 border-acs-coral'
+                        : 'bg-acs-azul-050 border-2 border-acs-azul'
+                      : 'bg-white border border-acs-line'
                   }`}
                 >
-                  {ativo && '✓ '}{f.label}
+                  <div
+                    className={`w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0 ${
+                      ativo
+                        ? isUrgencia
+                          ? 'bg-acs-coral text-white'
+                          : 'bg-acs-azul text-white'
+                        : 'bg-acs-paper-2 text-acs-ink-3'
+                    }`}
+                  >
+                    <Icon size={16} strokeWidth={2} />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className={`text-[14px] font-bold leading-tight ${
+                        ativo
+                          ? isUrgencia ? 'text-acs-coral' : 'text-acs-azul'
+                          : 'text-acs-ink'
+                      }`}
+                    >
+                      {t.label}
+                    </p>
+                    <p className="text-[11px] text-acs-ink-3 mt-0.5 leading-snug">{t.desc}</p>
+                  </div>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Contexto da Visita */}
+        {/* ── Section 02: Fatores de risco ─────────────────── */}
         <div>
-          <h3 className="font-display font-semibold text-acs-ink mb-3">Contexto da visita</h3>
+          <p className="eyebrow mb-1">02</p>
+          <h3 className="font-display text-[17px] font-bold text-acs-ink leading-tight">
+            Fatores de risco
+          </h3>
+          <p className="text-[12px] text-acs-ink-3 mb-3">
+            Pre-selecionados do prontuario. Ajuste se necessario.
+          </p>
 
-          <div className="mb-4">
-            <label className="text-sm font-medium text-acs-ink block mb-2">Tipo de visita</label>
-            <div className="grid grid-cols-2 gap-2">
-              {TIPOS_VISITA.map((t) => {
-                const ativo = tipoVisita === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setTipoVisita(t.id)}
-                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      ativo
-                        ? 'bg-acs-azul text-white'
-                        : 'bg-white text-acs-ink border border-acs-line'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                );
-              })}
+          {/* From patient record (locked) */}
+          {lockedFactors.length > 0 && (
+            <div className="bg-acs-azul-050 border border-acs-azul-100 rounded-2xl p-3.5 mb-3">
+              <p className="eyebrow mb-2">Do cadastro</p>
+              <div className="flex flex-wrap gap-2">
+                {lockedFactors.map((fId) => {
+                  const f = FATORES_RISCO.find((r) => r.id === fId);
+                  if (!f) return null;
+                  return (
+                    <span
+                      key={f.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-acs-azul text-[12px] font-semibold"
+                    >
+                      <Lock size={11} strokeWidth={2.2} className="opacity-60" />
+                      {f.label}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div>
-            <label className="text-sm font-medium text-acs-ink block mb-2">Observacao</label>
-            <textarea
-              value={observacao}
-              onChange={(e) => setObservacao(e.target.value)}
-              placeholder="Observacoes sobre a visita..."
-              className="w-full px-4 py-3 rounded-xl border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-4 focus:outline-none focus:ring-2 focus:ring-acs-azul resize-none"
-              rows={4}
-            />
+          {/* Observed this visit (toggleable) */}
+          <p className="eyebrow mb-2">Observados nesta visita</p>
+          <div className="flex flex-wrap gap-2">
+            {FATORES_RISCO.filter((f) => !lockedFactors.includes(f.id)).map((f) => {
+              const ativo = observedFactorIds.includes(f.id);
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => toggleRiskFactor(f.id)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all ${
+                    ativo
+                      ? 'bg-acs-ink text-white'
+                      : 'bg-white text-acs-ink border border-acs-line'
+                  }`}
+                >
+                  {ativo && <Check size={12} strokeWidth={2.5} />}
+                  {f.label}
+                </button>
+              );
+            })}
           </div>
+        </div>
+
+        {/* ── Section 03: Anotacoes ────────────────────────── */}
+        <div>
+          <p className="eyebrow mb-1">03</p>
+          <h3 className="font-display text-[17px] font-bold text-acs-ink leading-tight">
+            Anotacoes
+          </h3>
+          <p className="text-[12px] text-acs-ink-3 mb-3">
+            Observacoes livres sobre a visita.
+          </p>
+
+          <textarea
+            value={observacao}
+            onChange={(e) => setObservacao(e.target.value)}
+            placeholder="Observacoes sobre a visita..."
+            className="w-full px-4 py-3 rounded-xl border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-4 focus:outline-none focus:ring-2 focus:ring-acs-azul/40 focus:border-acs-azul resize-none text-[14px]"
+            rows={4}
+          />
         </div>
       </div>
 
-      {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[800px] mx-auto">
+      {/* ── Footer CTA bar ─────────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line px-5 py-4 flex items-center gap-3 max-w-[800px] mx-auto">
+        <button
+          type="button"
+          className="px-4 py-3 rounded-xl text-acs-azul text-[14px] font-semibold hover:bg-acs-azul-050 transition-colors"
+        >
+          Salvar rascunho
+        </button>
         <button
           onClick={() => navigate(`/triagem/${paciente.id}/passo2`)}
-          className="w-full py-3 bg-acs-azul text-white rounded-xl font-semibold hover:bg-acs-azul-900 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 py-3 bg-acs-azul text-white rounded-xl font-semibold text-[14px] hover:bg-acs-azul-900 transition-colors"
         >
-          Proximo: Sintomas
+          Proximo: sintomas
+          <ArrowRight size={16} strokeWidth={2.2} />
         </button>
       </div>
     </div>

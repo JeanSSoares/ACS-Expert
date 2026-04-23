@@ -1,5 +1,27 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Pencil, Loader2, AlertCircle, MapPin, ClipboardList, FileText, ChevronRight } from 'lucide-react';
+import {
+  ArrowLeft,
+  Pencil,
+  Loader2,
+  AlertCircle,
+  MapPin,
+  ClipboardList,
+  FileText,
+  ChevronRight,
+  User,
+  CreditCard,
+  Hash,
+  Map,
+  UserCheck,
+  Home,
+  Phone,
+  Navigation,
+  Heart,
+  ShieldAlert,
+  Accessibility,
+  HandCoins,
+  Activity,
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { RiskBadge } from '../components/RiskBadge';
 import {
@@ -8,14 +30,21 @@ import {
   riscoToUI,
   type PacienteDetalhe,
 } from '@/services/pacientesService';
+import {
+  triagensService,
+  labelPrioridade,
+  labelAcao,
+  corPrioridade,
+  type TriagemResumo,
+} from '@/services/triagensService';
 import type { Comorbidade } from '@/types';
 
 const COMORBIDADE_LABEL: Record<Comorbidade, string> = {
   fumante:          'Fumante',
   hipertenso:       'Hipertenso(a)',
-  diabetico:        'Diabético(a)',
+  diabetico:        'Diabetico(a)',
   obeso:            'Obeso(a)',
-  asmatico:         'Asmático(a)',
+  asmatico:         'Asmatico(a)',
   gestante:         'Gestante',
   cardiopata:       'Cardiopata',
   dpoc:             'DPOC',
@@ -23,29 +52,18 @@ const COMORBIDADE_LABEL: Record<Comorbidade, string> = {
 };
 
 function formatarCPF(cpf?: string) {
-  if (!cpf) return '—';
+  if (!cpf) return '\u2014';
   const d = cpf.replace(/\D/g, '');
   if (d.length !== 11) return cpf;
   return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
 }
 
 function formatarCNS(cns?: string) {
-  if (!cns) return '—';
+  if (!cns) return '\u2014';
   const d = cns.replace(/\D/g, '');
   if (d.length !== 15) return cns;
   return `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7, 11)} ${d.slice(11)}`;
 }
-
-// Estruturas de placeholder para quando os endpoints ainda não existem
-type TriagemTimeline = {
-  id: number;
-  data: string;
-  risco: 'urgent' | 'warning' | 'low';
-  score: number;
-  sintomas: string[];
-  acao: string;
-  status: 'realizado' | 'pendente';
-};
 
 type EncaminhamentoItem = {
   id: number;
@@ -54,6 +72,51 @@ type EncaminhamentoItem = {
   status: 'realizado' | 'pendente' | 'ausencia' | 'cancelado';
 };
 
+/* Risk color map for gradients and avatar tones */
+const RISK_COLORS: Record<string, { gradient: string; avatarBg: string; avatarFg: string; dot: string }> = {
+  urgent:  { gradient: 'rgba(200,54,74,.08)',  avatarBg: 'var(--acs-vermelho-100)', avatarFg: 'var(--acs-vermelho)',  dot: 'var(--acs-vermelho)' },
+  warning: { gradient: 'rgba(242,177,52,.10)', avatarBg: 'var(--acs-amar-100)',     avatarFg: 'var(--acs-amar)',      dot: 'var(--acs-amar)' },
+  low:     { gradient: 'rgba(47,158,110,.08)', avatarBg: 'var(--acs-verde-100)',    avatarFg: 'var(--acs-verde)',     dot: 'var(--acs-verde)' },
+};
+
+/* Status badge styles for encaminhamentos */
+const ENC_STATUS: Record<string, { bg: string; fg: string; label: string }> = {
+  realizado:  { bg: 'bg-acs-verde-100',    fg: 'text-acs-verde',    label: 'Realizado' },
+  pendente:   { bg: 'bg-acs-amar-100',     fg: 'text-acs-amar',     label: 'Pendente' },
+  ausencia:   { bg: 'bg-acs-vermelho-100', fg: 'text-acs-vermelho', label: 'Ausencia' },
+  cancelado:  { bg: 'bg-acs-vermelho-100', fg: 'text-acs-vermelho', label: 'Cancelado' },
+};
+
+/* ── DataRow helper ─────────────────────────────────────────── */
+function DataRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <div className="w-7 h-7 rounded-lg bg-acs-azul-050 flex items-center justify-center flex-shrink-0">
+        <Icon size={15} className="text-acs-azul-700" strokeWidth={1.8} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] text-acs-ink-3 leading-tight">{label}</p>
+        <p className="text-sm font-medium text-acs-ink truncate">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ── FlagBadge helper ───────────────────────────────────────── */
+function FlagBadge({ icon: Icon, label, variant }: { icon: React.ElementType; label: string; variant: 'coral' | 'amar' | 'azul' }) {
+  const styles = {
+    coral: 'bg-acs-coral-100 text-acs-coral border-acs-coral-300',
+    amar:  'bg-acs-amar-100 text-acs-amar border-acs-amar',
+    azul:  'bg-acs-azul-100 text-acs-azul border-acs-azul-300',
+  };
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${styles[variant]}`}>
+      <Icon size={13} strokeWidth={2} />
+      {label}
+    </span>
+  );
+}
+
 export function PerfilPaciente() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -61,8 +124,7 @@ export function PerfilPaciente() {
   const [loading, setLoading]   = useState(true);
   const [erro, setErro]         = useState<string | null>(null);
 
-  // Placeholders enquanto não existem os endpoints
-  const [triagens]        = useState<TriagemTimeline[]>([]);
+  const [triagens, setTriagens] = useState<TriagemResumo[]>([]);
   const [encaminhamentos] = useState<EncaminhamentoItem[]>([]);
 
   useEffect(() => {
@@ -70,8 +132,17 @@ export function PerfilPaciente() {
     let cancelado = false;
     setLoading(true);
     setErro(null);
-    pacientesService.buscarPorId(Number(id))
-      .then(({ data }) => { if (!cancelado) setPaciente(data); })
+
+    const idNum = Number(id);
+    Promise.all([
+      pacientesService.buscarPorId(idNum),
+      triagensService.listar({ paciente_id: idNum, limit: 20 }).catch(() => ({ data: [] as TriagemResumo[] })),
+    ])
+      .then(([pacRes, triRes]) => {
+        if (cancelado) return;
+        setPaciente(pacRes.data);
+        setTriagens(triRes.data);
+      })
       .catch((err) => {
         if (!cancelado) setErro(err?.response?.data?.message ?? 'Erro ao carregar paciente.');
       })
@@ -94,9 +165,9 @@ export function PerfilPaciente() {
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-acs-ink mb-6">
           <ArrowLeft size={20} /> Voltar
         </button>
-        <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-[#FECACA] rounded-xl p-4">
+        <div className="flex items-start gap-3 bg-acs-vermelho-100 border border-acs-vermelho rounded-xl p-4">
           <AlertCircle size={18} className="text-acs-vermelho flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-[#B91C1C]">{erro ?? 'Paciente não encontrado.'}</p>
+          <p className="text-sm text-acs-vermelho">{erro ?? 'Paciente nao encontrado.'}</p>
         </div>
       </div>
     );
@@ -109,264 +180,377 @@ export function PerfilPaciente() {
     paciente.nivel_risco === 'alto'     ? 'ALTO RISCO'     :
     paciente.nivel_risco === 'moderado' ? 'RISCO MODERADO' :
                                           'BAIXO RISCO';
+  const rc = RISK_COLORS[risco] ?? RISK_COLORS.low;
 
-  const bandeirasSociais = [
-    paciente.idoso_mora_sozinho     && 'Idoso mora sozinho',
-    paciente.vulnerabilidade_social && 'Vulnerabilidade social',
-    paciente.dificuldade_locomocao  && 'Dificuldade de locomoção',
-    paciente.beneficio_social       && 'Beneficiário de programa social',
-  ].filter(Boolean) as string[];
+  const bandeirasSociais: { label: string; icon: React.ElementType; variant: 'coral' | 'amar' | 'azul' }[] = [
+    ...(paciente.idoso_mora_sozinho     ? [{ label: 'Idoso mora sozinho',      icon: ShieldAlert,   variant: 'coral' as const }] : []),
+    ...(paciente.vulnerabilidade_social ? [{ label: 'Vulnerabilidade social',  icon: Heart,         variant: 'coral' as const }] : []),
+    ...(paciente.dificuldade_locomocao  ? [{ label: 'Dificuldade de locomocao', icon: Accessibility, variant: 'amar' as const }] : []),
+    ...(paciente.beneficio_social       ? [{ label: 'Beneficio social',        icon: HandCoins,     variant: 'azul' as const }] : []),
+  ];
 
   const irParaEditar = () => {
     navigate(`/paciente/${paciente.id}/editar`);
   };
 
+  /* Alert cards for high-risk patients */
+  const alertCards: { text: string; color: string; borderColor: string; icon: React.ElementType }[] = [];
+  if (paciente.nivel_risco === 'alto') {
+    alertCards.push({
+      text: 'Paciente classificado como alto risco. Acompanhamento prioritario recomendado.',
+      color: 'text-acs-vermelho',
+      borderColor: 'var(--acs-vermelho)',
+      icon: AlertCircle,
+    });
+  }
+
   return (
-    <div className="h-full flex flex-col overflow-y-auto pb-28">
-      {/* Header */}
-      <div className="bg-white border-b border-acs-line px-6 py-4">
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <button onClick={() => navigate(-1)} aria-label="Voltar">
-              <ArrowLeft size={24} className="text-acs-ink" />
+    <>
+      {/* pulse-red keyframes */}
+      <style>{`
+        @keyframes pulse-red {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(200,54,74,.55); }
+          50% { box-shadow: 0 0 0 6px rgba(200,54,74,0); }
+        }
+        .pulse-red-dot { animation: pulse-red 2s ease-in-out infinite; }
+      `}</style>
+
+      <div className="h-full flex flex-col overflow-y-auto pb-28 lg:pb-8">
+        {/* ── Hero Card ──────────────────────────────────────────── */}
+        <div
+          className="relative px-5 pt-4 pb-5 lg:px-8 lg:pt-6 lg:pb-6"
+          style={{ background: `linear-gradient(135deg, ${rc.gradient} 0%, transparent 60%)` }}
+        >
+          {/* Top bar: back + desktop actions */}
+          <div className="flex items-center justify-between mb-4">
+            <button onClick={() => navigate(-1)} aria-label="Voltar" className="p-1 -ml-1">
+              <ArrowLeft size={22} className="text-acs-ink" />
             </button>
-            <h2 className="font-display font-bold text-acs-ink truncate">{paciente.nome}</h2>
-          </div>
-          <button
-            onClick={irParaEditar}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-acs-azul text-acs-azul text-sm font-medium hover:bg-[#F0F9FF] transition-colors"
-          >
-            <Pencil size={16} /> Editar
-          </button>
-        </div>
-        <RiskBadge level={risco} label={riscoLabel} />
-      </div>
-
-      <div className="px-6 py-4 space-y-6">
-        {/* Dados resumidos */}
-        <div className="bg-white rounded-xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-acs-ink-3">Idade</p>
-              <p className="font-semibold text-acs-ink">{idade} anos</p>
+            <div className="hidden lg:flex items-center gap-2">
+              <button
+                onClick={irParaEditar}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-acs-azul text-acs-azul text-sm font-semibold hover:bg-acs-azul-050 transition-colors"
+              >
+                <Pencil size={15} strokeWidth={1.8} /> Editar
+              </button>
+              <button
+                onClick={() => navigate(`/triagem/${paciente.id}/passo1`)}
+                className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-acs-coral text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+              >
+                <Activity size={15} strokeWidth={2} /> Nova triagem
+              </button>
             </div>
-            <div>
-              <p className="text-xs text-acs-ink-3">Sexo</p>
-              <p className="font-semibold text-acs-ink">
+          </div>
+
+          {/* Avatar + Identity */}
+          <div className="flex items-start gap-4">
+            {/* Avatar */}
+            <div className="relative flex-shrink-0">
+              <div
+                className="w-[60px] h-[60px] lg:w-[80px] lg:h-[80px] rounded-2xl flex items-center justify-center"
+                style={{ backgroundColor: rc.avatarBg }}
+              >
+                <User size={28} className="lg:hidden" style={{ color: rc.avatarFg }} strokeWidth={1.8} />
+                <User size={36} className="hidden lg:block" style={{ color: rc.avatarFg }} strokeWidth={1.8} />
+              </div>
+              {risco === 'urgent' && (
+                <span
+                  className="pulse-red-dot absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white"
+                  style={{ backgroundColor: 'var(--acs-vermelho)' }}
+                />
+              )}
+            </div>
+
+            {/* Name + meta */}
+            <div className="flex-1 min-w-0 pt-0.5">
+              <h1 className="font-display font-bold text-acs-ink text-xl lg:text-[28px] leading-tight truncate">
+                {paciente.nome}
+              </h1>
+              <p className="text-sm text-acs-ink-2 mt-1">
+                {idade} anos
+                <span className="mx-1.5 text-acs-ink-4">&middot;</span>
                 {paciente.sexo === 'm' ? 'Masculino' : 'Feminino'}
+                <span className="mx-1.5 text-acs-ink-4">&middot;</span>
+                <span className="font-mono text-xs">{formatarCPF(paciente.cpf)}</span>
               </p>
-            </div>
-            <div>
-              <p className="text-xs text-acs-ink-3">CPF</p>
-              <p className="font-semibold text-acs-ink">{formatarCPF(paciente.cpf)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-acs-ink-3">CNS</p>
-              <p className="font-semibold text-acs-ink">{formatarCNS(paciente.cns)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-acs-ink-3">Microárea</p>
-              <p className="font-semibold text-acs-ink">{paciente.microarea_nome ?? '—'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-acs-ink-3">ACS responsável</p>
-              <p className="font-semibold text-acs-ink">{paciente.acs_nome ?? 'Não atribuído'}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Endereço */}
-        {(endereco || paciente.bairro || paciente.cep || paciente.nome_referencia) && (
-          <div>
-            <h3 className="font-display font-semibold text-acs-ink mb-3">Endereço</h3>
-            <div className="bg-white rounded-xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
-              <div className="flex items-start gap-3">
-                <MapPin size={18} className="text-acs-ink-3 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-acs-ink space-y-0.5">
-                  <p>{endereco || '—'}</p>
-                  {paciente.complemento && <p className="text-acs-ink-3">{paciente.complemento}</p>}
-                  {(paciente.bairro || paciente.cep) && (
-                    <p className="text-acs-ink-3">
-                      {[paciente.bairro, paciente.cep].filter(Boolean).join(' — ')}
-                    </p>
-                  )}
-                  {paciente.nome_referencia && (
-                    <p className="text-xs text-acs-ink-3 mt-1 italic">
-                      Ref.: {paciente.nome_referencia}
-                    </p>
-                  )}
-                </div>
+              <div className="mt-2 flex items-center gap-3 flex-wrap">
+                <RiskBadge level={risco} label={`${riscoLabel} ${paciente.score_risco_atual ? paciente.score_risco_atual + '%' : ''}`} />
+                {paciente.data_ultima_triagem && (
+                  <span className="text-[11px] font-mono text-acs-ink-3">
+                    Triagem: {new Date(paciente.data_ultima_triagem).toLocaleDateString('pt-BR')}
+                  </span>
+                )}
               </div>
             </div>
           </div>
-        )}
 
-        {/* Contexto social */}
-        {bandeirasSociais.length > 0 && (
-          <div>
-            <h3 className="font-display font-semibold text-acs-ink mb-3">Contexto social</h3>
-            <div className="flex flex-wrap gap-2">
-              {bandeirasSociais.map((b) => (
-                <span
-                  key={b}
-                  className="px-3 py-1.5 bg-acs-amar-100 text-[#92400E] rounded-full text-sm font-medium border border-acs-amar"
+          {/* Alert cards in hero */}
+          {alertCards.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {alertCards.map((alert, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-2.5 bg-white rounded-xl p-3"
+                  style={{ borderLeft: `4px solid ${alert.borderColor}`, boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}
                 >
-                  {b}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Comorbidades */}
-        <div>
-          <h3 className="font-display font-semibold text-acs-ink mb-3">Comorbidades</h3>
-          {paciente.comorbidades && paciente.comorbidades.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {paciente.comorbidades.map((c) => (
-                <span
-                  key={c}
-                  className="px-3 py-1.5 bg-[#E0E7FF] text-[#3730A3] rounded-full text-sm font-medium border border-[#6366F1]"
-                >
-                  {COMORBIDADE_LABEL[c] ?? c}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-acs-ink-3">Nenhuma comorbidade registrada.</p>
-          )}
-        </div>
-
-        {/* Histórico de Triagens */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display font-semibold text-acs-ink">Histórico de Triagens</h3>
-            {triagens.length > 0 && (
-              <span className="text-xs text-acs-ink-3">{triagens.length} registro(s)</span>
-            )}
-          </div>
-
-          {triagens.length === 0 ? (
-            <div className="bg-white rounded-xl p-6 border border-dashed border-acs-line text-center">
-              <ClipboardList size={28} className="text-[#94A3B8] mx-auto mb-2" />
-              <p className="text-sm text-acs-ink-3 mb-1">Nenhuma triagem registrada</p>
-              <p className="text-xs text-[#94A3B8] mb-4">
-                As triagens realizadas com este paciente aparecerão aqui.
-              </p>
-              <button
-                onClick={() => navigate(`/triagem/${paciente.id}/passo1`)}
-                className="text-sm text-acs-azul font-medium hover:underline"
-              >
-                Iniciar primeira triagem →
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {triagens.map((triagem, index) => (
-                <div key={triagem.id} className="relative">
-                  {index < triagens.length - 1 && (
-                    <div className="absolute left-3 top-10 bottom-0 w-0.5 bg-acs-line" />
-                  )}
-                  <div className="flex gap-4">
-                    <div className="relative z-10">
-                      <div
-                        className="w-6 h-6 rounded-full border-4 border-white"
-                        style={{
-                          backgroundColor:
-                            triagem.risco === 'urgent'  ? 'var(--acs-vermelho)' :
-                            triagem.risco === 'warning' ? 'var(--acs-amar)' : 'var(--acs-verde)',
-                        }}
-                      />
-                    </div>
-                    <div className="flex-1 bg-white rounded-xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
-                      <div className="flex items-start justify-between mb-2">
-                        <p className="text-sm font-semibold text-acs-ink">{triagem.data}</p>
-                        <RiskBadge level={triagem.risco} label={`${triagem.score}%`} />
-                      </div>
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {triagem.sintomas.slice(0, 3).map((s) => (
-                          <span key={s} className="px-2 py-1 bg-background text-acs-ink-3 rounded text-xs">{s}</span>
-                        ))}
-                      </div>
-                      <p className="text-sm text-acs-ink mb-3">
-                        <span className="font-medium">Ação:</span> {triagem.acao}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className={`text-xs ${triagem.status === 'realizado' ? 'text-acs-verde' : 'text-acs-amar'}`}>
-                          {triagem.status === 'realizado' ? '✓ Realizado' : '⏱ Pendente'}
-                        </span>
-                        <button className="text-xs text-acs-azul font-medium">Ver detalhe</button>
-                      </div>
-                    </div>
-                  </div>
+                  <alert.icon size={16} className={`flex-shrink-0 mt-0.5 ${alert.color}`} />
+                  <p className={`text-sm ${alert.color}`}>{alert.text}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Encaminhamentos */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display font-semibold text-acs-ink">Encaminhamentos</h3>
-            {encaminhamentos.length > 0 && (
-              <span className="text-xs text-acs-ink-3">{encaminhamentos.length} registro(s)</span>
-            )}
+        {/* ── Main Content (2-col on desktop) ────────────────────── */}
+        <div className="flex-1 px-5 py-5 lg:px-8 lg:grid lg:grid-cols-[2fr_1fr] lg:gap-6">
+
+          {/* ── Left Column: Timeline + Encaminhamentos ──────────── */}
+          <div className="space-y-6">
+
+            {/* Historico de Triagens */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="eyebrow">Historico de triagens</h3>
+                {triagens.length > 0 && (
+                  <span className="eyebrow">{triagens.length} registro(s)</span>
+                )}
+              </div>
+
+              {triagens.length === 0 ? (
+                <div className="bg-white rounded-2xl p-6 border-2 border-dashed border-acs-ink-4/30 text-center" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
+                  <ClipboardList size={28} className="text-acs-ink-4 mx-auto mb-2" strokeWidth={1.8} />
+                  <p className="text-sm text-acs-ink-3 mb-1">Nenhuma triagem registrada</p>
+                  <p className="text-xs text-acs-ink-4 mb-4">
+                    As triagens realizadas com este paciente aparecerao aqui.
+                  </p>
+                  <button
+                    onClick={() => navigate(`/triagem/${paciente.id}/passo1`)}
+                    className="text-sm text-acs-coral font-semibold hover:underline"
+                  >
+                    Iniciar primeira triagem &rarr;
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  {/* Vertical timeline line */}
+                  <div className="absolute left-[11px] top-3 bottom-3 w-0.5 bg-acs-ink-4/20" />
+
+                  <div className="space-y-3">
+                    {triagens.map((triagem) => {
+                      const tRisco = riscoToUI(triagem.nivel_risco);
+                      const tCorPrio = corPrioridade(triagem.nivel_prioridade);
+                      const dotColor =
+                        tRisco === 'urgent'  ? 'var(--acs-vermelho)' :
+                        tRisco === 'warning' ? 'var(--acs-amar)' : 'var(--acs-verde)';
+
+                      return (
+                        <button
+                          key={triagem.id}
+                          onClick={() => navigate(`/triagem/${triagem.id}/detalhe`)}
+                          className="relative flex gap-4 w-full text-left group"
+                        >
+                          {/* Dot */}
+                          <div className="relative z-10 mt-4 flex-shrink-0">
+                            <div
+                              className="w-[22px] h-[22px] rounded-full border-[3px] border-white"
+                              style={{ backgroundColor: dotColor, boxShadow: '0 0 0 2px rgba(10,20,40,.06)' }}
+                            />
+                          </div>
+
+                          {/* Card */}
+                          <div className="flex-1 bg-white rounded-2xl p-4 border border-acs-line group-hover:border-acs-azul-300 transition-colors" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <p className="font-mono text-[11px] text-acs-ink-4 tracking-wider">TRG-{triagem.id}</p>
+                                <p className="text-sm font-semibold text-acs-ink">
+                                  {new Date(triagem.data_hora).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                </p>
+                              </div>
+                              <RiskBadge level={tRisco} label={`${triagem.score_final}%`} />
+                            </div>
+
+                            {triagem.top_doenca_nome && (
+                              <p className="text-sm text-acs-ink-2 mb-2">
+                                <span className="font-semibold text-acs-ink">Hipotese:</span> {triagem.top_doenca_nome}
+                                {triagem.top_doenca_score != null && (
+                                  <span className="font-mono text-xs text-acs-ink-3 ml-1">({triagem.top_doenca_score}%)</span>
+                                )}
+                              </p>
+                            )}
+
+                            <p className="text-sm text-acs-ink-2 mb-3">
+                              <span className="font-semibold text-acs-ink">Acao:</span> {labelAcao(triagem.acao_recomendada)}
+                            </p>
+
+                            <div className="flex items-center justify-between">
+                              <span className="eyebrow">
+                                {labelPrioridade(triagem.nivel_prioridade)}
+                              </span>
+                              <span className="text-xs text-acs-azul font-semibold group-hover:underline flex items-center gap-1">
+                                Ver detalhe <ChevronRight size={12} />
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Encaminhamentos */}
+            <section>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="eyebrow">Encaminhamentos</h3>
+                {encaminhamentos.length > 0 && (
+                  <span className="eyebrow">{encaminhamentos.length} registro(s)</span>
+                )}
+              </div>
+
+              {encaminhamentos.length === 0 ? (
+                <div className="bg-white rounded-2xl p-6 border-2 border-dashed border-acs-ink-4/30 text-center" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
+                  <FileText size={28} className="text-acs-ink-4 mx-auto mb-2" strokeWidth={1.8} />
+                  <p className="text-sm text-acs-ink-3 mb-1">Nenhum encaminhamento registrado</p>
+                  <p className="text-xs text-acs-ink-4">
+                    Encaminhamentos para UBS, consultas ou exames aparecerao aqui.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {encaminhamentos.map((enc) => {
+                    const st = ENC_STATUS[enc.status] ?? ENC_STATUS.pendente;
+                    return (
+                      <button
+                        key={enc.id}
+                        className="w-full bg-white rounded-2xl p-3.5 border border-acs-line flex items-center gap-3 hover:border-acs-azul-300 transition-colors text-left"
+                        style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-acs-azul-050 flex items-center justify-center flex-shrink-0">
+                          <FileText size={16} className="text-acs-azul-700" strokeWidth={1.8} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-acs-ink text-sm">{enc.tipo}</p>
+                          <p className="text-xs text-acs-ink-3 font-mono">{enc.data}</p>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide ${st.bg} ${st.fg}`}>
+                          {st.label}
+                        </span>
+                        <ChevronRight size={16} className="text-acs-ink-4 flex-shrink-0" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </div>
 
-          {encaminhamentos.length === 0 ? (
-            <div className="bg-white rounded-xl p-6 border border-dashed border-acs-line text-center">
-              <FileText size={28} className="text-[#94A3B8] mx-auto mb-2" />
-              <p className="text-sm text-acs-ink-3 mb-1">Nenhum encaminhamento registrado</p>
-              <p className="text-xs text-[#94A3B8]">
-                Encaminhamentos para UBS, consultas ou exames aparecerão aqui.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {encaminhamentos.map((enc) => (
-                <button
-                  key={enc.id}
-                  className="w-full bg-white rounded-xl p-3 border border-acs-line flex items-center justify-between hover:border-acs-azul transition-colors text-left"
-                  style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-acs-ink text-sm">{enc.tipo}</p>
-                    <p className="text-xs text-acs-ink-3">{enc.data}</p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      enc.status === 'realizado'
-                        ? 'bg-acs-verde-100 text-[#065F46]'
-                        : enc.status === 'pendente'
-                          ? 'bg-acs-amar-100 text-[#92400E]'
-                          : 'bg-acs-vermelho-100 text-[#991B1B]'
-                    }`}>
-                      {enc.status.charAt(0).toUpperCase() + enc.status.slice(1)}
-                    </span>
-                    <ChevronRight size={16} className="text-acs-ink-3" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+          {/* ── Right Column: Data Cards ─────────────────────────── */}
+          <div className="space-y-4 mt-6 lg:mt-0">
 
-      {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[800px] mx-auto">
-        <div className="flex gap-3">
-          <button
-            onClick={() => navigate(`/triagem/${paciente.id}/passo1`)}
-            className="flex-1 py-3 bg-acs-azul text-white rounded-xl font-semibold hover:bg-acs-azul-900 transition-colors"
-          >
-            Nova Triagem
-          </button>
-          <button className="flex-1 py-3 bg-white text-acs-azul rounded-xl font-semibold border-2 border-acs-azul hover:bg-background transition-colors">
-            Registrar Visita
-          </button>
+            {/* Identificacao */}
+            <div className="bg-white rounded-2xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
+              <p className="eyebrow mb-3">Identificacao</p>
+              <DataRow icon={CreditCard} label="CNS" value={formatarCNS(paciente.cns)} />
+              <DataRow icon={Map} label="Microarea" value={paciente.microarea_nome ?? '\u2014'} />
+              <DataRow icon={UserCheck} label="ACS Responsavel" value={paciente.acs_nome ?? 'Nao atribuido'} />
+            </div>
+
+            {/* Endereco */}
+            {(endereco || paciente.bairro || paciente.cep || paciente.nome_referencia) && (
+              <div className="bg-white rounded-2xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="eyebrow">Endereco</p>
+                  {paciente.dom_latitude && paciente.dom_longitude && (
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${paciente.dom_latitude},${paciente.dom_longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-acs-azul hover:underline"
+                    >
+                      <Navigation size={12} strokeWidth={2} /> Rota
+                    </a>
+                  )}
+                </div>
+                <DataRow icon={Home} label="Logradouro" value={endereco || '\u2014'} />
+                {paciente.complemento && (
+                  <DataRow icon={Hash} label="Complemento" value={paciente.complemento} />
+                )}
+                {(paciente.bairro || paciente.cep) && (
+                  <DataRow icon={MapPin} label="Bairro / CEP" value={[paciente.bairro, paciente.cep].filter(Boolean).join(' \u2014 ')} />
+                )}
+                {paciente.nome_referencia && (
+                  <div className="mt-2 rounded-lg bg-acs-paper-2 px-3 py-2">
+                    <p className="text-xs text-acs-ink-3 italic">Ref.: {paciente.nome_referencia}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Contexto social */}
+            {bandeirasSociais.length > 0 && (
+              <div className="bg-white rounded-2xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
+                <p className="eyebrow mb-3">Contexto social</p>
+                <div className="flex flex-wrap gap-2">
+                  {bandeirasSociais.map((b) => (
+                    <FlagBadge key={b.label} icon={b.icon} label={b.label} variant={b.variant} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Comorbidades */}
+            <div className="bg-white rounded-2xl p-4 border border-acs-line" style={{ boxShadow: '0 1px 2px rgba(10,20,40,.06)' }}>
+              <p className="eyebrow mb-3">Comorbidades</p>
+              {paciente.comorbidades && paciente.comorbidades.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {paciente.comorbidades.map((c) => (
+                    <span
+                      key={c}
+                      className="px-3 py-1.5 bg-acs-azul-050 text-acs-azul rounded-full text-xs font-semibold"
+                    >
+                      {COMORBIDADE_LABEL[c] ?? c}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-acs-ink-3">Nenhuma comorbidade registrada.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Mobile Footer (fixed) ──────────────────────────────── */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[800px] mx-auto lg:hidden">
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate(`/triagem/${paciente.id}/passo1`)}
+              className="flex-1 py-3 bg-acs-coral text-white rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            >
+              <Activity size={18} strokeWidth={2} />
+              Nova Triagem
+            </button>
+            {paciente.dom_latitude && paciente.dom_longitude && (
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${paciente.dom_latitude},${paciente.dom_longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 flex items-center justify-center rounded-xl border border-acs-azul text-acs-azul hover:bg-acs-azul-050 transition-colors"
+                aria-label="Abrir rota no mapa"
+              >
+                <MapPin size={20} strokeWidth={1.8} />
+              </a>
+            )}
+            <a
+              href={`tel:`}
+              className="w-12 h-12 flex items-center justify-center rounded-xl border border-acs-azul text-acs-azul hover:bg-acs-azul-050 transition-colors"
+              aria-label="Ligar"
+            >
+              <Phone size={20} strokeWidth={1.8} />
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

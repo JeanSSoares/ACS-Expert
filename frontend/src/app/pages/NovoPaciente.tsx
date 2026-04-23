@@ -1,6 +1,6 @@
-import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, Check, User, Home, Heart, Stethoscope, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { pacientesService, type CriarPacientePayload } from '@/services/pacientesService';
 import { microareasService, type MicroareaAPI } from '@/services/usuariosService';
@@ -18,18 +18,83 @@ const COMORBIDADES: { id: Comorbidade; label: string }[] = [
   { id: 'imunossuprimido',label: 'Imunossuprimido(a)' },
 ];
 
+const STEPS = [
+  { title: 'Identificacao', label: 'Identificacao', desc: 'Dados pessoais do paciente', icon: User },
+  { title: 'Endereco', label: 'Endereco', desc: 'Endereco e localizacao', icon: Home },
+  { title: 'Contexto social', label: 'Contexto social', desc: 'Situacao social e vulnerabilidades', icon: Heart },
+  { title: 'Saude', label: 'Saude', desc: 'Comorbidades e condicoes de saude', icon: Stethoscope },
+];
+
+const SOCIAL_FLAGS = [
+  { key: 'idosoMoraSozinho',      title: 'Idoso que mora sozinho',               desc: 'Paciente idoso sem companhia no domicilio' },
+  { key: 'vulnerabilidadeSocial',  title: 'Vulnerabilidade social',               desc: 'Familia em situacao de vulnerabilidade' },
+  { key: 'dificuldadeLocomocao',   title: 'Dificuldade de locomocao',             desc: 'Mobilidade reduzida ou acamado' },
+  { key: 'beneficioSocial',        title: 'Beneficiario de programa social',      desc: 'Bolsa Familia, BPC ou similar' },
+] as const;
+
+const INPUT_CLS = 'w-full bg-white border border-acs-line rounded-[10px] px-4 py-3 text-[15px] text-acs-ink placeholder:text-acs-ink-4 focus:outline-none focus:ring-2 focus:ring-acs-azul-050 focus:border-acs-azul-300 transition-colors';
+
+function FormField({ label, hint, required, error, children }: { label: string; hint?: string; required?: boolean; error?: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-baseline gap-1.5">
+        <label className="text-[13px] font-semibold text-acs-ink-2">{label}</label>
+        {required && <span className="text-acs-vermelho text-[13px]">*</span>}
+        {hint && <span className="text-[11px] text-acs-ink-4 ml-auto">{hint}</span>}
+      </div>
+      {children}
+      {error && (
+        <div className="flex items-center gap-1.5 text-acs-vermelho text-[12px]">
+          <AlertCircle size={12} />
+          <span>{error}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FormSectionHeader({ icon: Icon, title, desc }: { icon: typeof User; title: string; desc: string }) {
+  return (
+    <div className="flex items-start gap-3 mb-5">
+      <div className="w-8 h-8 rounded-lg bg-acs-azul-050 flex items-center justify-center flex-shrink-0">
+        <Icon size={16} className="text-acs-azul" strokeWidth={2} />
+      </div>
+      <div>
+        <h2 className="font-display font-semibold text-acs-ink text-[16px] leading-tight">{title}</h2>
+        <p className="text-[13px] text-acs-ink-3 mt-0.5">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function FormToggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-10 flex-shrink-0 rounded-full transition-colors duration-200 ${checked ? 'bg-acs-azul' : 'bg-acs-ink-4'}`}
+    >
+      <span className={`pointer-events-none inline-block h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform duration-200 mt-[3px] ${checked ? 'translate-x-[19px] ml-[1px]' : 'translate-x-[3px]'}`} />
+    </button>
+  );
+}
+
 export function NovoPaciente() {
   const navigate = useNavigate();
   const usuarioAuth = useAuthStore((s) => s.usuario);
 
-  // Identificação
+  const [step, setStep] = useState(0);
+
+  // Identificacao
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
   const [cns, setCns] = useState('');
   const [dataNascimento, setDataNascimento] = useState('');
   const [sexo, setSexo] = useState<Sexo>('f');
 
-  // Localização
+  // Localizacao
   const [logradouro, setLogradouro] = useState('');
   const [numero, setNumero] = useState('');
   const [complemento, setComplemento] = useState('');
@@ -47,7 +112,7 @@ export function NovoPaciente() {
   // Comorbidades
   const [comorbidadesSel, setComorbidadesSel] = useState<Set<Comorbidade>>(new Set());
 
-  // Microáreas
+  // Microareas
   const [microareas, setMicroareas] = useState<MicroareaAPI[]>([]);
 
   // Submit
@@ -60,7 +125,7 @@ export function NovoPaciente() {
         const { data } = await microareasService.listar(usuarioAuth?.municipioId);
         setMicroareas(data);
       } catch {
-        // se falhar, deixa vazio — o campo ainda será opcional
+        // se falhar, deixa vazio — o campo ainda sera opcional
       }
     }
     carregarMicroareas();
@@ -72,6 +137,20 @@ export function NovoPaciente() {
       if (next.has(c)) next.delete(c); else next.add(c);
       return next;
     });
+  };
+
+  const socialSetters: Record<string, (v: boolean) => void> = {
+    idosoMoraSozinho: setIdosoMoraSozinho,
+    vulnerabilidadeSocial: setVulnerabilidadeSocial,
+    dificuldadeLocomocao: setDificuldadeLocomocao,
+    beneficioSocial: setBeneficioSocial,
+  };
+
+  const socialValues: Record<string, boolean> = {
+    idosoMoraSozinho,
+    vulnerabilidadeSocial,
+    dificuldadeLocomocao,
+    beneficioSocial,
   };
 
   const handleSalvar = async () => {
@@ -118,257 +197,304 @@ export function NovoPaciente() {
     }
   };
 
-  const sexoButton = (val: Sexo, label: string) => (
-    <button
-      onClick={() => setSexo(val)}
-      className="flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors"
-      style={{
-        backgroundColor: sexo === val ? 'var(--acs-azul)' : 'white',
-        color: sexo === val ? '#FFFFFF' : 'var(--acs-ink)',
-        border: sexo === val ? 'none' : '1px solid var(--acs-line)',
-      }}
-    >
-      {label}
-    </button>
+  /* ── Progress calculation ──────────────────────────────────── */
+  const pct = useMemo(() => {
+    let total = 0;
+    if (nome.trim()) total += 20;
+    if (dataNascimento) total += 20;
+    if (logradouro.trim()) total += 20;
+    if (microareaId) total += 15;
+    if (comorbidadesSel.size > 0) total += 15;
+    if (idosoMoraSozinho || vulnerabilidadeSocial || dificuldadeLocomocao || beneficioSocial) total += 10;
+    return total;
+  }, [nome, dataNascimento, logradouro, microareaId, comorbidadesSel, idosoMoraSozinho, vulnerabilidadeSocial, dificuldadeLocomocao, beneficioSocial]);
+
+  /* ── ProgressRing SVG ──────────────────────────────────────── */
+  const ringSize = 44;
+  const ringStroke = 4;
+  const ringRadius = (ringSize - ringStroke) / 2;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringOffset = ringCircumference - (pct / 100) * ringCircumference;
+
+  const ProgressRing = (
+    <div className="relative flex items-center justify-center" style={{ width: ringSize, height: ringSize }}>
+      <svg width={ringSize} height={ringSize} className="-rotate-90">
+        <circle cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none" stroke="var(--acs-paper-2)" strokeWidth={ringStroke} />
+        <circle cx={ringSize / 2} cy={ringSize / 2} r={ringRadius} fill="none" stroke="var(--acs-azul)" strokeWidth={ringStroke} strokeDasharray={ringCircumference} strokeDashoffset={ringOffset} strokeLinecap="round" className="transition-all duration-500" />
+      </svg>
+      <span className="absolute font-mono text-[10px] font-semibold text-acs-ink-2">{pct}%</span>
+    </div>
   );
 
+  /* ── Stepper Header ────────────────────────────────────────── */
+  const StepperHeader = (
+    <div className="flex items-center justify-between px-2 py-4">
+      {STEPS.map((s, i) => {
+        const isDone = i < step;
+        const isActive = i === step;
+        return (
+          <div key={s.title} className="flex items-center flex-1 last:flex-none">
+            <button
+              type="button"
+              onClick={() => { if (isDone) setStep(i); }}
+              className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold transition-colors ${
+                isDone
+                  ? 'bg-acs-verde text-white cursor-pointer'
+                  : isActive
+                    ? 'bg-acs-azul text-white'
+                    : 'bg-acs-paper-2 text-acs-ink-3'
+              }`}
+            >
+              {isDone ? <Check size={14} strokeWidth={2.5} /> : i + 1}
+            </button>
+            {i < STEPS.length - 1 && (
+              <div className={`flex-1 h-[2px] mx-2 rounded transition-colors ${isDone ? 'bg-acs-verde' : 'bg-acs-paper-2'}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  /* ── Step Title ────────────────────────────────────────────── */
+  const StepTitle = (
+    <div className="mb-6">
+      <p className="eyebrow mb-1">Passo {step + 1} de 4</p>
+      <h2 className="font-display font-bold text-acs-ink text-[20px] leading-tight">{STEPS[step].label}</h2>
+      <p className="text-[14px] text-acs-ink-3 mt-1">{STEPS[step].desc}</p>
+    </div>
+  );
+
+  /* ── Step content ──────────────────────────────────────────── */
+  const renderStep = () => {
+    switch (step) {
+      case 0:
+        return (
+          <div>
+            <FormSectionHeader icon={User} title="Identificacao" desc="Informacoes basicas do paciente" />
+            <div className="space-y-4">
+              <FormField label="Nome completo" required>
+                <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Digite o nome completo" className={INPUT_CLS} />
+              </FormField>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <FormField label="CPF" hint="Opcional">
+                  <input type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" className={INPUT_CLS} />
+                </FormField>
+                <FormField label="CNS" hint="Cartao Nacional de Saude">
+                  <input type="text" value={cns} onChange={(e) => setCns(e.target.value)} placeholder="000 0000 0000 0000" className={INPUT_CLS} />
+                </FormField>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <FormField label="Data de nascimento" required>
+                  <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} className={INPUT_CLS} />
+                </FormField>
+                <FormField label="Sexo" required>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(['m', 'f'] as Sexo[]).map((val) => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => setSexo(val)}
+                        className={`py-3 rounded-[10px] text-[15px] font-medium transition-colors ${
+                          sexo === val
+                            ? 'bg-acs-azul text-white'
+                            : 'bg-white border border-acs-line text-acs-ink hover:border-acs-azul-300'
+                        }`}
+                      >
+                        {val === 'm' ? 'Masculino' : 'Feminino'}
+                      </button>
+                    ))}
+                  </div>
+                </FormField>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div>
+            <FormSectionHeader icon={Home} title="Endereco" desc="Localizacao e referencia do domicilio" />
+            <div className="space-y-4">
+              <FormField label="Logradouro">
+                <input type="text" value={logradouro} onChange={(e) => setLogradouro(e.target.value)} placeholder="Ex: Rua das Flores" className={INPUT_CLS} />
+              </FormField>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <FormField label="Numero">
+                  <input type="text" value={numero} onChange={(e) => setNumero(e.target.value)} placeholder="123" className={INPUT_CLS} />
+                </FormField>
+                <FormField label="Complemento">
+                  <input type="text" value={complemento} onChange={(e) => setComplemento(e.target.value)} placeholder="Apto, bloco, etc." className={INPUT_CLS} />
+                </FormField>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <FormField label="Bairro">
+                  <input type="text" value={bairro} onChange={(e) => setBairro(e.target.value)} placeholder="Ex: Centro" className={INPUT_CLS} />
+                </FormField>
+                <FormField label="CEP">
+                  <input type="text" value={cep} onChange={(e) => setCep(e.target.value)} placeholder="00000-000" className={INPUT_CLS} />
+                </FormField>
+              </div>
+
+              <FormField label="Microarea">
+                <select value={microareaId} onChange={(e) => setMicroareaId(e.target.value)} className={INPUT_CLS}>
+                  <option value="">Selecione...</option>
+                  {microareas.map((m) => (
+                    <option key={m.id} value={m.id}>{m.nome}</option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField label="Referencia de localizacao">
+                <textarea value={nomeReferencia} onChange={(e) => setNomeReferencia(e.target.value)} placeholder="Ex: Proximo ao mercado, casa azul..." className={`${INPUT_CLS} resize-none`} rows={3} />
+              </FormField>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div>
+            <FormSectionHeader icon={Heart} title="Contexto social" desc="Informacoes sobre vulnerabilidades e condicoes sociais" />
+            <div className="space-y-3">
+              {SOCIAL_FLAGS.map((flag) => (
+                <div key={flag.key} className="flex items-center gap-3 bg-white rounded-xl border border-acs-line p-4">
+                  <div className="w-9 h-9 rounded-[10px] bg-acs-azul-050 flex items-center justify-center flex-shrink-0">
+                    <Heart size={16} className="text-acs-azul" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-acs-ink leading-tight">{flag.title}</p>
+                    <p className="text-[12px] text-acs-ink-3 mt-0.5">{flag.desc}</p>
+                  </div>
+                  <FormToggle checked={socialValues[flag.key]} onChange={(v) => socialSetters[flag.key](v)} />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div>
+            <FormSectionHeader icon={Stethoscope} title="Saude" desc="Selecione as comorbidades do paciente" />
+            <div className="flex flex-wrap gap-2">
+              {COMORBIDADES.map((c) => {
+                const sel = comorbidadesSel.has(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => toggleComorbidade(c.id)}
+                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold transition-colors ${
+                      sel
+                        ? 'bg-acs-azul text-white'
+                        : 'bg-white border border-acs-line text-acs-ink hover:border-acs-azul-300'
+                    }`}
+                  >
+                    {sel && <Check size={14} strokeWidth={2.5} />}
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="h-full flex flex-col overflow-y-auto pb-24">
-      {/* Header */}
-      <div className="bg-white border-b border-acs-line px-6 py-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)}>
-            <ArrowLeft size={24} className="text-acs-ink" />
-          </button>
-          <h2 className="font-display font-bold text-acs-ink">Novo Paciente</h2>
+    <div className="h-full flex flex-col bg-acs-paper">
+      {/* ── Desktop header ──────────────────────────────────────── */}
+      <div className="bg-white border-b border-acs-line">
+        <div className="max-w-[760px] mx-auto px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-acs-ink-3 hover:text-acs-ink transition-colors text-[14px]">
+                <ArrowLeft size={18} strokeWidth={2} />
+                <span className="hidden lg:inline">Pacientes</span>
+              </button>
+              <span className="hidden lg:block w-px h-5 bg-acs-line" />
+              <h1 className="font-display font-bold text-acs-ink text-[18px] lg:text-[22px]">Novo paciente</h1>
+            </div>
+            <div className="hidden lg:flex items-center gap-3">
+              <span className="text-[13px] text-acs-ink-3 font-medium">{pct}% preenchido</span>
+              {ProgressRing}
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* ── Stepper header ──────────────────────────────────────── */}
+      <div className="bg-white border-b border-acs-line">
+        <div className="max-w-[760px] mx-auto px-4 lg:px-6">
+          {StepperHeader}
+        </div>
+      </div>
+
+      {/* ── Error banner ────────────────────────────────────────── */}
       {erro && (
-        <div className="mx-6 mt-4 flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
-          <AlertCircle size={16} className="flex-shrink-0" />
-          {erro}
+        <div className="max-w-[760px] mx-auto w-full px-4 lg:px-6 mt-4">
+          <div className="flex items-center gap-2.5 bg-acs-vermelho-100 border border-acs-vermelho/20 text-acs-vermelho rounded-xl px-4 py-3 text-[14px]">
+            <AlertCircle size={16} className="flex-shrink-0" />
+            {erro}
+          </div>
         </div>
       )}
 
-      <div className="flex-1 px-6 py-4 space-y-6">
-        {/* Identificação */}
-        <div>
-          <h3 className="font-display font-semibold text-acs-ink mb-3">Identificação</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">
-                Nome completo <span className="text-acs-vermelho">*</span>
-              </label>
-              <input
-                type="text"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                placeholder="Digite o nome completo"
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">CPF</label>
-              <input
-                type="text"
-                value={cpf}
-                onChange={(e) => setCpf(e.target.value)}
-                placeholder="000.000.000-00"
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">CNS (Cartão Nacional de Saúde)</label>
-              <input
-                type="text"
-                value={cns}
-                onChange={(e) => setCns(e.target.value)}
-                placeholder="000 0000 0000 0000"
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">
-                Data de nascimento <span className="text-acs-vermelho">*</span>
-              </label>
-              <input
-                type="date"
-                value={dataNascimento}
-                onChange={(e) => setDataNascimento(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">
-                Sexo <span className="text-acs-vermelho">*</span>
-              </label>
-              <div className="flex gap-3">
-                {sexoButton('m', 'Masculino')}
-                {sexoButton('f', 'Feminino')}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Localização */}
-        <div>
-          <h3 className="font-display font-semibold text-acs-ink mb-3">Localização</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">Logradouro</label>
-              <input
-                type="text"
-                value={logradouro}
-                onChange={(e) => setLogradouro(e.target.value)}
-                placeholder="Ex: Rua das Flores"
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium text-acs-ink block mb-2">Número</label>
-                <input
-                  type="text"
-                  value={numero}
-                  onChange={(e) => setNumero(e.target.value)}
-                  placeholder="123"
-                  className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-acs-ink block mb-2">CEP</label>
-                <input
-                  type="text"
-                  value={cep}
-                  onChange={(e) => setCep(e.target.value)}
-                  placeholder="00000-000"
-                  className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">Bairro</label>
-              <input
-                type="text"
-                value={bairro}
-                onChange={(e) => setBairro(e.target.value)}
-                placeholder="Ex: Centro"
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">Complemento</label>
-              <input
-                type="text"
-                value={complemento}
-                onChange={(e) => setComplemento(e.target.value)}
-                placeholder="Apto, bloco, etc."
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">Microárea</label>
-              <select
-                value={microareaId}
-                onChange={(e) => setMicroareaId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink focus:outline-none focus:ring-2 focus:ring-acs-azul/20"
-              >
-                <option value="">Selecione...</option>
-                {microareas.map((m) => (
-                  <option key={m.id} value={m.id}>{m.nome}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-acs-ink block mb-2">Referência de localização</label>
-              <textarea
-                value={nomeReferencia}
-                onChange={(e) => setNomeReferencia(e.target.value)}
-                placeholder="Ex: Próximo ao mercado, casa azul..."
-                className="w-full px-4 py-2.5 rounded-lg border border-acs-line bg-white text-acs-ink placeholder:text-acs-ink-3 focus:outline-none focus:ring-2 focus:ring-acs-azul/20 resize-none"
-                rows={2}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Contexto Social */}
-        <div>
-          <h3 className="font-display font-semibold text-acs-ink mb-3">Contexto Social</h3>
-          <div className="space-y-2">
-            {[
-              { checked: idosoMoraSozinho,       set: setIdosoMoraSozinho,       label: 'Idoso que mora sozinho' },
-              { checked: vulnerabilidadeSocial,  set: setVulnerabilidadeSocial,  label: 'Família em situação de vulnerabilidade' },
-              { checked: dificuldadeLocomocao,   set: setDificuldadeLocomocao,   label: 'Dificuldade de locomoção' },
-              { checked: beneficioSocial,        set: setBeneficioSocial,        label: 'Beneficiário de programa social' },
-            ].map((item) => (
-              <label key={item.label} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-acs-line cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={item.checked}
-                  onChange={(e) => item.set(e.target.checked)}
-                  className="w-4 h-4 text-acs-azul rounded border-acs-line focus:ring-acs-azul"
-                />
-                <span className="text-sm text-acs-ink">{item.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Comorbidades */}
-        <div>
-          <h3 className="font-display font-semibold text-acs-ink mb-3">Comorbidades</h3>
-          <div className="flex flex-wrap gap-2">
-            {COMORBIDADES.map((c) => {
-              const selecionado = comorbidadesSel.has(c.id);
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => toggleComorbidade(c.id)}
-                  className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
-                  style={{
-                    backgroundColor: selecionado ? 'var(--acs-azul)' : 'white',
-                    color: selecionado ? '#FFFFFF' : 'var(--acs-ink)',
-                    border: selecionado ? 'none' : '1px solid var(--acs-line)',
-                  }}
-                >
-                  {c.label}
-                </button>
-              );
-            })}
+      {/* ── Form body ───────────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto pb-28">
+        <div className="max-w-[760px] mx-auto px-4 lg:px-6 py-6">
+          {StepTitle}
+          <div className="card-acs p-5 lg:p-8">
+            {renderStep()}
           </div>
         </div>
       </div>
 
-      {/* Footer fixo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-acs-line p-4 max-w-[390px] mx-auto">
-        <div className="flex gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            disabled={salvando}
-            className="px-6 py-3 text-acs-ink-3 font-semibold disabled:opacity-50"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleSalvar}
-            disabled={salvando}
-            className="flex-1 py-3 bg-acs-azul text-white rounded-xl font-semibold hover:bg-acs-azul-900 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
-          >
-            {salvando && <Loader2 size={18} className="animate-spin" />}
-            {salvando ? 'Salvando...' : 'Salvar Paciente'}
-          </button>
+      {/* ── Sticky footer ───────────────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-acs-line z-20">
+        <div className="max-w-[760px] mx-auto px-4 lg:px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 lg:hidden">
+            <span className="font-mono text-[11px] font-semibold text-acs-ink-3 tracking-wide">{pct}% preenchido</span>
+          </div>
+          <div className="flex items-center gap-3 ml-auto">
+            {step > 0 && (
+              <button
+                type="button"
+                onClick={() => setStep(step - 1)}
+                className="px-5 py-3 text-[14px] font-semibold text-acs-ink-2 hover:text-acs-ink transition-colors"
+              >
+                Voltar
+              </button>
+            )}
+            {step < 3 ? (
+              <button
+                type="button"
+                onClick={() => setStep(step + 1)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-acs-azul text-white rounded-xl text-[14px] font-semibold hover:bg-acs-azul-700 transition-colors"
+              >
+                Proximo
+                <ArrowRight size={16} strokeWidth={2} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSalvar}
+                disabled={salvando}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-acs-azul text-white rounded-xl text-[14px] font-semibold hover:bg-acs-azul-700 transition-colors disabled:opacity-70"
+              >
+                {salvando && <Loader2 size={16} className="animate-spin" />}
+                {salvando ? 'Salvando...' : 'Cadastrar paciente'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
