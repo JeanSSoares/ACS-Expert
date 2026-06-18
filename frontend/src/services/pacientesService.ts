@@ -93,6 +93,8 @@ export interface ListarPacientesParams {
   comorbidade?: string
   /** Filtro de aba server-side: cronicos | gestantes | sem-visita | alertas */
   filtro?: 'cronicos' | 'gestantes' | 'sem-visita' | 'alertas'
+  /** Ordenação server-side: risco (padrão) | nome | sem-visita */
+  ordenar?: 'risco' | 'nome' | 'sem-visita'
   page?: number
   limit?: number
 }

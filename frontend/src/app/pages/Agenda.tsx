@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   MapPin, Loader2, AlertCircle, RefreshCw, AlertTriangle, Activity,
-  CheckCircle2, Clock,
+  CheckCircle2, Clock, Users, ChevronDown, Plus,
 } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { MapaVisitas, type Visita } from '../components/MapaVisitas';
 import { RiskBadge } from '../components/RiskBadge';
 import { geocodeCep, JOINVILLE_CENTER } from '@/hooks/useGeocodeCep';
+import { useAuthStore } from '@/store/authStore';
+import { usuariosService, type UsuarioAPI } from '@/services/usuariosService';
 import {
   agendaService,
   corPrioridadePorRisco,
@@ -32,6 +34,13 @@ function enderecoCurto(it: AgendaItemAPI): string {
 
 export function Agenda() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const usuario  = useAuthStore((s) => s.usuario);
+  const ehGestor = usuario?.perfil === 'gestor' || usuario?.perfil === 'coordenador';
+
+  // ACS vindo da query (?acs=) — ex.: atalho a partir da tela de Pacientes
+  const acsParam = Number(searchParams.get('acs')) || null;
+
   const [visualizacao, setVisualizacao] = useState<'lista' | 'mapa'>('lista');
   const [itens, setItens]               = useState<AgendaItemAPI[]>([]);
   const [data, setData]                 = useState<string>('');
@@ -39,11 +48,26 @@ export function Agenda() {
   const [gerando, setGerando]           = useState(false);
   const [erro, setErro]                 = useState<string | null>(null);
 
-  async function carregar() {
+  // Seletor de ACS — apenas gestor/coordenador escolhe a agenda de qual agente.
+  const [acsList, setAcsList]               = useState<UsuarioAPI[]>([]);
+  const [acsSelecionado, setAcsSelecionado] = useState<number | null>(acsParam);
+
+  // Carrega a lista de ACS para o seletor (somente gestor/coordenador)
+  useEffect(() => {
+    if (!ehGestor) return;
+    usuariosService.listar({ perfil: 'acs', ativo: true })
+      .then(({ data: lista }) => {
+        setAcsList(lista);
+        setAcsSelecionado((prev) => prev ?? (lista.length ? lista[0].id : null));
+      })
+      .catch(() => { /* sem lista: cai no fallback (agenda do próprio usuário) */ });
+  }, [ehGestor]);
+
+  async function carregar(acsId = acsSelecionado) {
     setLoading(true);
     setErro(null);
     try {
-      const { data: r } = await agendaService.hoje();
+      const { data: r } = await agendaService.hoje({ acsId: ehGestor ? acsId ?? undefined : undefined });
       setItens(r.itens);
       setData(r.data);
     } catch (err: any) {
@@ -53,13 +77,18 @@ export function Agenda() {
     }
   }
 
-  useEffect(() => { carregar(); }, []);
+  // Carrega a agenda. Para gestor, aguarda a seleção de um ACS antes de buscar.
+  useEffect(() => {
+    if (ehGestor && acsSelecionado == null) return;
+    carregar(acsSelecionado);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ehGestor, acsSelecionado]);
 
   async function regerar() {
     setGerando(true);
     setErro(null);
     try {
-      const { data: r } = await agendaService.gerar();
+      const { data: r } = await agendaService.gerar({ acsId: ehGestor ? acsSelecionado ?? undefined : undefined });
       setItens(r.itens);
       setData(r.data);
     } catch (err: any) {
@@ -137,6 +166,9 @@ export function Agenda() {
   const [menuRotaAberto, setMenuRotaAberto] = useState(false);
   const [rotaOtimizada, setRotaOtimizada]   = useState(false);
 
+  // Grupo de FABs recolhível — começa escondido para não atrapalhar a tela
+  const [fabAberto, setFabAberto] = useState(false);
+
   // Visitas pendentes com coordenadas, na ordem de prioridade da agenda.
   const pendentesComCoords = useMemo(
     () =>
@@ -205,6 +237,32 @@ export function Agenda() {
             </button>
           </div>
         </div>
+
+        {/* Seletor de ACS — gestor/coordenador */}
+        {ehGestor && (
+          <div className="mb-4">
+            <label className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-[.14em] text-acs-ink-3 mb-1.5">
+              <Users size={13} strokeWidth={2.2} />
+              Agente comunitário
+            </label>
+            <div className="relative">
+              <select
+                value={acsSelecionado ?? ''}
+                onChange={(e) => setAcsSelecionado(e.target.value ? Number(e.target.value) : null)}
+                disabled={acsList.length === 0}
+                className="w-full appearance-none bg-acs-paper-2 border border-acs-line rounded-xl pl-3 pr-9 py-2.5 text-sm font-medium text-acs-ink focus:outline-none focus:ring-2 focus:ring-acs-azul/30 disabled:opacity-60"
+              >
+                {acsList.length === 0 && <option value="">Nenhum ACS disponível</option>}
+                {acsList.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.nome}{a.microarea_nome ? ` — ${a.microarea_nome}` : ''}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-acs-ink-3 pointer-events-none" />
+            </div>
+          </div>
+        )}
 
         {/* Métricas */}
         <div className="flex gap-3">
@@ -415,27 +473,49 @@ export function Agenda() {
         </>
       )}
 
-      {/* FABs */}
+      {/* FABs — grupo recolhível */}
       {!loading && itens.length > 0 && (
         <div className="fixed bottom-24 right-6 flex flex-col items-end gap-3 z-30">
-          {pendentesComCoords.length > 0 && (
-            <button
-              className="flex items-center gap-2 px-4 py-3 bg-acs-azul rounded-2xl shadow-[0_8px_20px_rgba(11,58,111,.35)] text-white font-semibold hover:bg-acs-azul-700 transition-colors"
-              onClick={() => setMenuRotaAberto((v) => !v)}
-            >
-              <MapPin size={18} strokeWidth={2.2} />
-              Otimizar rota
-            </button>
+          {/* Ações (visíveis só quando o grupo está aberto) */}
+          {fabAberto && (
+            <>
+              {pendentesComCoords.length > 0 && (
+                <button
+                  className="flex items-center gap-2 px-4 py-3 bg-acs-azul rounded-2xl shadow-[0_8px_20px_rgba(11,58,111,.35)] text-white font-semibold hover:bg-acs-azul-700 transition-colors animate-in fade-in slide-in-from-bottom-2 duration-150"
+                  onClick={() => setMenuRotaAberto((v) => !v)}
+                >
+                  <MapPin size={18} strokeWidth={2.2} />
+                  Otimizar rota
+                </button>
+              )}
+              <button
+                className="flex items-center gap-2 px-4 py-3 bg-acs-coral rounded-2xl shadow-[0_8px_20px_rgba(231,111,74,.45)] text-white font-semibold hover:brightness-95 transition-colors disabled:opacity-70 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                onClick={regerar}
+                disabled={gerando}
+              >
+                {gerando
+                  ? <Loader2 size={18} className="animate-spin" />
+                  : <RefreshCw size={18} />}
+                {gerando ? 'Gerando…' : 'Recalcular'}
+              </button>
+            </>
           )}
+
+          {/* Botão de alternância — sempre visível, footprint mínimo */}
           <button
-            className="flex items-center gap-2 px-4 py-3 bg-acs-coral rounded-2xl shadow-[0_8px_20px_rgba(231,111,74,.45)] text-white font-semibold hover:brightness-95 transition-colors disabled:opacity-70"
-            onClick={regerar}
-            disabled={gerando}
+            aria-label={fabAberto ? 'Esconder ações' : 'Mostrar ações'}
+            aria-expanded={fabAberto}
+            onClick={() => {
+              setFabAberto((v) => !v);
+              if (fabAberto) setMenuRotaAberto(false);
+            }}
+            className="w-14 h-14 flex items-center justify-center bg-acs-azul rounded-2xl shadow-[0_8px_20px_rgba(11,58,111,.35)] text-white hover:bg-acs-azul-700 transition-colors"
           >
-            {gerando
-              ? <Loader2 size={18} className="animate-spin" />
-              : <RefreshCw size={18} />}
-            {gerando ? 'Gerando…' : 'Recalcular'}
+            <Plus
+              size={24}
+              strokeWidth={2.2}
+              className={`transition-transform duration-200 ${fabAberto ? 'rotate-45' : ''}`}
+            />
           </button>
         </div>
       )}

@@ -70,7 +70,7 @@ async function listar(req, res) {
 
     const {
       busca, nivel_risco, microarea_id, acs_responsavel_id, ativo,
-      comorbidade, filtro,
+      comorbidade, filtro, ordenar,
     } = req.query;
 
     const page  = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -155,10 +155,22 @@ async function listar(req, res) {
       where += ' AND (COALESCE(al.total, 0) > 0 OR COALESCE(ev.total, 0) > 0)';
     }
 
-    // ORDER: risco primeiro por padrão (alto → moderado → baixo → nome)
-    const orderBy = ` ORDER BY
-      FIELD(p.nivel_risco, 'alto', 'moderado', 'baixo'),
-      p.nome ASC`;
+    // ORDER: configurável via ?ordenar= (risco | nome | sem-visita)
+    let orderBy;
+    if (ordenar === 'nome') {
+      orderBy = ' ORDER BY p.nome ASC';
+    } else if (ordenar === 'sem-visita') {
+      // Sem visita / visita mais antiga primeiro (NULL = nunca visitado vem antes)
+      orderBy = ` ORDER BY
+        (p.data_ultima_visita IS NOT NULL),
+        p.data_ultima_visita ASC,
+        p.nome ASC`;
+    } else {
+      // Padrão: risco (alto → moderado → baixo → nome)
+      orderBy = ` ORDER BY
+        FIELD(p.nivel_risco, 'alto', 'moderado', 'baixo'),
+        p.nome ASC`;
+    }
 
     // COUNT para o total (sem LIMIT)
     const [countRows] = await db.query(

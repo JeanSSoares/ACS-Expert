@@ -54,6 +54,7 @@ export interface AgendaItemAPI {
 
 export interface AgendaResposta {
   data:        string
+  acs_id?:     number
   total:       number
   realizadas:  number
   urgentes:    number
@@ -61,11 +62,21 @@ export interface AgendaResposta {
 }
 
 export const agendaService = {
-  hoje: (data?: string) =>
-    api.get<AgendaResposta>('/agenda/hoje', { params: data ? { data } : undefined }),
+  // acsId só é respeitado pelo backend para perfis gestor/coordenador.
+  hoje: (opts?: { data?: string; acsId?: number }) =>
+    api.get<AgendaResposta>('/agenda/hoje', {
+      params: {
+        ...(opts?.data ? { data: opts.data } : {}),
+        ...(opts?.acsId ? { acs_id: opts.acsId } : {}),
+      },
+    }),
 
-  gerar: (payload?: { data?: string; limite?: number }) =>
-    api.post<AgendaResposta>('/agenda/gerar', payload ?? {}),
+  gerar: (payload?: { data?: string; limite?: number; acsId?: number }) =>
+    api.post<AgendaResposta>('/agenda/gerar', {
+      ...(payload?.data ? { data: payload.data } : {}),
+      ...(payload?.limite ? { limite: payload.limite } : {}),
+      ...(payload?.acsId ? { acs_id: payload.acsId } : {}),
+    }),
 
   atualizarStatus: (id: number, status: StatusAgenda, visita_id?: number) =>
     api.put<{ id: number; status: StatusAgenda; visita_id: number | null }>(

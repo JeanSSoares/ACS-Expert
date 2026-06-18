@@ -8,12 +8,23 @@ function hojeISO() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+// Resolve de qual ACS é a agenda. Gestor/coordenador podem consultar a agenda
+// de outro agente via acs_id; ACS sempre vê apenas a própria.
+function resolverAcsAlvo(req, acsIdRecebido) {
+  const ehGestor = ['gestor', 'coordenador'].includes(req.usuario.perfil);
+  if (ehGestor && acsIdRecebido != null) {
+    const n = Number(acsIdRecebido);
+    if (Number.isInteger(n) && n > 0) return n;
+  }
+  return req.usuario.id;
+}
+
 // ── GET /api/agenda/hoje ────────────────────────────────────
 // Retorna a agenda do dia atual (ou da data passada em ?data=).
 // Se a agenda ainda não foi gerada, gera automaticamente.
 async function listarHoje(req, res) {
   try {
-    const acsId = req.usuario.id;
+    const acsId = resolverAcsAlvo(req, req.query.acs_id);
     const data  = (req.query.data && /^\d{4}-\d{2}-\d{2}$/.test(req.query.data))
       ? req.query.data
       : hojeISO();
@@ -37,6 +48,7 @@ async function listarHoje(req, res) {
 
     res.json({
       data,
+      acs_id: acsId,
       total,
       realizadas,
       urgentes,
@@ -53,7 +65,7 @@ async function listarHoje(req, res) {
 // Body opcional: { data: 'YYYY-MM-DD', limite: 12 }
 async function gerar(req, res) {
   try {
-    const acsId = req.usuario.id;
+    const acsId = resolverAcsAlvo(req, req.body?.acs_id);
     const data  = (req.body?.data && /^\d{4}-\d{2}-\d{2}$/.test(req.body.data))
       ? req.body.data
       : hojeISO();
@@ -62,7 +74,7 @@ async function gerar(req, res) {
     const resumo = await agendaService.gerarAgendaParaACS(acsId, data, { limite });
     const itens  = await agendaService.listarAgendaDoACS(acsId, data);
 
-    res.json({ ...resumo, itens });
+    res.json({ ...resumo, acs_id: acsId, itens });
   } catch (err) {
     console.error('[AGENDA/gerar] Erro:', err);
     res.status(500).json({ message: 'Erro ao gerar agenda.', error: err.message });

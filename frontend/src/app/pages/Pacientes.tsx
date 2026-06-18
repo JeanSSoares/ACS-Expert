@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Search, ChevronRight, Plus, AlertTriangle, Loader2,
-  Users, X, ChevronDown, MapPin, Clock,
+  Users, X, ChevronDown, MapPin, Clock, CalendarDays,
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { RiskBadge } from '../components/RiskBadge';
@@ -14,6 +14,8 @@ import {
 } from '@/services/pacientesService';
 import { EncaminhamentoVencidoBadge } from '@/features/encaminhamentos';
 import { usePacientesFiltradosPorPerfil } from '@/hooks/usePacientesFiltradosPorPerfil';
+import { useAuthStore } from '@/store/authStore';
+import { usuariosService, type UsuarioAPI } from '@/services/usuariosService';
 
 type FiltroId = 'todos' | 'alto' | 'cronicos' | 'gestantes' | 'sem-visita' | 'alertas';
 type SortOption = 'risco' | 'sem-visita' | 'nome';
@@ -29,6 +31,8 @@ const PAGE_LIMIT = 20;
 export function Pacientes() {
   const navigate      = useNavigate();
   const filtrosPerfil = usePacientesFiltradosPorPerfil();
+  const usuario       = useAuthStore((s) => s.usuario);
+  const ehGestor      = usuario?.perfil === 'gestor' || usuario?.perfil === 'coordenador';
 
   const [searchTerm,    setSearchTerm]    = useState('');
   const [debouncedBusca, setDebouncedBusca] = useState('');
@@ -36,9 +40,21 @@ export function Pacientes() {
   const [sort,          setSort]          = useState<SortOption>('risco');
   const [sortOpen,      setSortOpen]      = useState(false);
 
+  // Filtro por ACS — apenas gestor/coordenador. null = todos os ACS.
+  const [acsList,        setAcsList]        = useState<UsuarioAPI[]>([]);
+  const [acsSelecionado, setAcsSelecionado] = useState<number | null>(null);
+
   // Estabiliza filtrosPerfil em ref para não recriar carregarPagina a cada render
   const filtrosPerfilRef = useRef(filtrosPerfil);
   filtrosPerfilRef.current = filtrosPerfil;
+
+  // Carrega a lista de ACS para o filtro (somente gestor/coordenador)
+  useEffect(() => {
+    if (!ehGestor) return;
+    usuariosService.listar({ perfil: 'acs', ativo: true })
+      .then(({ data }) => setAcsList(data))
+      .catch(() => { /* sem lista: filtro fica indisponível */ });
+  }, [ehGestor]);
 
   // Paginação
   const [pacientes,  setPacientes]  = useState<PacienteListagem[]>([]);
@@ -64,7 +80,7 @@ export function Pacientes() {
     setTotal(0);
     setPage(1);
     setHasMore(false);
-  }, [debouncedBusca, activeFilter, sort]);
+  }, [debouncedBusca, activeFilter, sort, acsSelecionado]);
 
   // Carrega uma página — filtrosPerfil via ref para não recriar o callback
   const carregarPagina = useCallback(async (pageNum: number, append: boolean) => {
@@ -74,11 +90,13 @@ export function Pacientes() {
     try {
       const params: ListarPacientesParams = {
         ...filtrosPerfilRef.current,
+        acs_responsavel_id: ehGestor && acsSelecionado ? acsSelecionado : undefined,
         busca:       debouncedBusca || undefined,
         nivel_risco: activeFilter === 'alto' ? 'alto' : undefined,
         filtro:      (['cronicos', 'gestantes', 'sem-visita', 'alertas'] as FiltroId[]).includes(activeFilter)
           ? (activeFilter as ListarPacientesParams['filtro'])
           : undefined,
+        ordenar: sort,
         page:  pageNum,
         limit: PAGE_LIMIT,
       };
@@ -94,7 +112,7 @@ export function Pacientes() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [debouncedBusca, activeFilter]); // filtrosPerfil via ref — estável
+  }, [debouncedBusca, activeFilter, sort, acsSelecionado]); // filtrosPerfil via ref — estável
 
   // Carrega página 1 quando filtros mudam (page volta a 1 via effect acima)
   useEffect(() => {
@@ -144,6 +162,17 @@ export function Pacientes() {
     { id: 'alertas',    label: 'Alertas' },
   ];
 
+  // Título dinâmico: ACS vê "Meus Pacientes"; gestor vê "Pacientes" (todos)
+  // ou o nome do agente quando um ACS está selecionado no filtro.
+  const tituloPagina = (() => {
+    if (!ehGestor) return 'Meus Pacientes';
+    if (acsSelecionado) {
+      const acs = acsList.find((a) => a.id === acsSelecionado);
+      if (acs) return `Pacientes — ${acs.nome}`;
+    }
+    return 'Pacientes';
+  })();
+
   const iniciais = (nome: string) =>
     nome.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 
@@ -171,7 +200,7 @@ export function Pacientes() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-bold text-acs-ink text-lg lg:text-xl pl-12 lg:pl-0">
-              Meus Pacientes
+              {tituloPagina}
             </h2>
             <button
               onClick={() => navigate('/novo-paciente')}
@@ -279,6 +308,40 @@ export function Pacientes() {
               </>
             )}
           </div>
+
+          {/* Filtro por ACS — gestor/coordenador */}
+          {ehGestor && (
+            <div className="relative mt-3 inline-flex items-center gap-1.5 ml-4 align-top">
+              <span className="font-mono text-[10px] uppercase tracking-[.14em] text-acs-ink-3">Agente:</span>
+              <div className="relative">
+                <select
+                  value={acsSelecionado ?? ''}
+                  onChange={(e) => setAcsSelecionado(e.target.value ? Number(e.target.value) : null)}
+                  className="appearance-none bg-white border border-acs-line rounded-lg pl-2.5 pr-8 py-1.5 text-sm font-medium text-acs-ink focus:outline-none focus:ring-2 focus:ring-acs-azul/30 max-w-[220px]"
+                >
+                  <option value="">Todos os ACS</option>
+                  {acsList.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.nome}{a.microarea_nome ? ` — ${a.microarea_nome}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-acs-ink-3 pointer-events-none" />
+              </div>
+
+              {/* Atalho para a agenda do ACS selecionado */}
+              {acsSelecionado && (
+                <button
+                  onClick={() => navigate(`/agenda?acs=${acsSelecionado}`)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-acs-azul text-white text-sm font-medium hover:bg-acs-azul-700 transition-colors whitespace-nowrap"
+                  title="Abrir a agenda deste ACS"
+                >
+                  <CalendarDays size={15} strokeWidth={2.2} />
+                  Ver agenda
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
